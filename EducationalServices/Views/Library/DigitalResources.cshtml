@@ -1,0 +1,58 @@
+﻿@model List<EducationalServices.Models.DigitalResource>
+
+<h2>Digital Resources</h2>
+
+@foreach (var resource in Model)
+{
+    <div>
+        <h4>@resource.Title</h4>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => resource.Author)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => resource.Author)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => resource.Type)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => resource.Type)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => resource.Description)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => resource.Description)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => resource.DateAdded)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => resource.DateAdded)
+            </dd>
+
+            <dt>
+                Resource Link
+            </dt>
+            <dd>
+                <a href="@resource.FileUrl" target="_blank" class="btn btn-primary">Access Resource</a>
+            </dd>
+        </dl>
+
+        <p>
+            @if (User.IsInRole("Admin"))
+            {
+                @Html.ActionLink("Edit", "EditDigitalResource", new { id = resource.Id }, new { @class = "btn btn-warning" })
+            }
+        </p>
+    </div>
+}
+
+<p>
+    @Html.ActionLink("Back to List", "DigitalResources", null, new { @class = "btn btn-default" })
+</p>

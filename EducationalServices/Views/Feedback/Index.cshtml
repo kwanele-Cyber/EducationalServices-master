@@ -1,0 +1,19 @@
+﻿@{
+    ViewBag.Title = "Feedback";
+}
+
+<h2>Feedback</h2>
+
+<p>We value your input! Please submit your feedback below:</p>
+
+<div class="row">
+    <div class="col-md-12">
+        @Html.ActionLink("Submit Feedback", "Create", null, new { @class = "btn btn-primary btn-lg btn-block" })
+    </div>
+</div>
+
+<hr />
+
+<p>
+    @Html.ActionLink("View My Submitted Feedback", "MyFeedback")
+</p>

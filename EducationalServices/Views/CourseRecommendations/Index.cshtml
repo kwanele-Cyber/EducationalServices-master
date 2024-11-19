@@ -1,0 +1,38 @@
+﻿@model IEnumerable<EducationalServices.Models.CourseRecommendation>
+
+@{
+    ViewBag.Title = "Course Recommendations";
+}
+
+<h2>Course Recommendations</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-primary" })
+  
+</p>
+
+<table class="table">
+    <tr>
+        <th>Student</th>
+        <th>Module</th>
+        <th>Subject Code</th>
+        <th>Reason</th>
+        <th>Created At</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Student.UserName</td>
+            <td>@item.Module.Subject</td>
+            <td>@item.Module.SubjectCode</td>
+            <td>@item.Reason</td>
+            <td>@item.CreatedAt.ToString("g")</td>
+            <td>
+                @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { @class = "btn btn-danger btn-sm" })
+            </td>
+        </tr>
+    }
+
+</table>

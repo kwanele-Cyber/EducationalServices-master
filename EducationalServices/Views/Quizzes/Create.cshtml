@@ -1,0 +1,173 @@
+﻿@model EducationalServices.Models.Quiz
+@using EducationalServices.Models
+
+@{
+    ViewBag.Title = "Create Quiz";
+}
+
+<h2>Create New Quiz</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ModuleId, "Module", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("ModuleId", null, "Select a Module", htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.ModuleId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.Description, new { @class = "form-control", rows = 3 })
+                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.StartTime, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.StartTime, new { htmlAttributes = new { @class = "form-control", type = "datetime-local" } })
+                @Html.ValidationMessageFor(model => model.StartTime, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.EndTime, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.EndTime, new { htmlAttributes = new { @class = "form-control", type = "datetime-local" } })
+                @Html.ValidationMessageFor(model => model.EndTime, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.MaxAttempts, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.MaxAttempts, new { htmlAttributes = new { @class = "form-control", type = "number", min = "1" } })
+                @Html.ValidationMessageFor(model => model.MaxAttempts, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.TimeLimit, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.TimeLimit, new { htmlAttributes = new { @class = "form-control", type = "number", min = "0" } })
+                @Html.ValidationMessageFor(model => model.TimeLimit, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <hr />
+        <h3>Questions</h3>
+        <div id="questions-container">
+            <!-- Questions will be added here dynamically -->
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="button" id="add-question" class="btn btn-default">Add Question</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create Quiz" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $(document).ready(function () {
+            var questionCount = 0;
+
+            $("#add-question").click(function () {
+                var questionHtml = `
+                    <div class="question-item">
+                        <h4>Question ${questionCount + 1}</h4>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Question Text</label>
+                            <div class="col-md-10">
+                                <input type="text" name="Questions[${questionCount}].Text" class="form-control" required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Question Type</label>
+                            <div class="col-md-10">
+                                <select name="Questions[${questionCount}].QuestionType" class="form-control question-type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="${@((int)QuestionType.MultipleChoice)}">Multiple Choice</option>
+                                    <option value="${@((int)QuestionType.TrueFalse)}">True/False</option>
+                                    <option value="${@((int)QuestionType.FillInTheBlank)}">Fill in the Blank</option>
+                                    <option value="${@((int)QuestionType.ShortAnswer)}">Short Answer</option>
+                                    <option value="${@((int)QuestionType.Essay)}">Essay</option>
+                                    <option value="${@((int)QuestionType.Matching)}">Matching</option>
+                                    <option value="${@((int)QuestionType.Ranking)}">Ranking</option>
+                                    <option value="${@((int)QuestionType.MultipleAnswers)}">Multiple Answers</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group options-group" style="display:none;">
+                            <label class="control-label col-md-2">Options</label>
+                            <div class="col-md-10">
+                                <input type="text" name="Questions[${questionCount}].Options" class="form-control" placeholder="Comma-separated options" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Correct Answer</label>
+                            <div class="col-md-10">
+                                <input type="text" name="Questions[${questionCount}].CorrectAnswer" class="form-control" required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Marks</label>
+                            <div class="col-md-10">
+                                <input type="number" name="Questions[${questionCount}].Marks" class="form-control" required min="0" />
+                            </div>
+                        </div>
+                        <hr />
+                    </div>
+                `;
+                $("#questions-container").append(questionHtml);
+                questionCount++;
+                bindQuestionTypeChange();
+            });
+
+            function bindQuestionTypeChange() {
+                $(".question-type").off("change").on("change", function() {
+                    var selectedType = $(this).val();
+                    var optionsGroup = $(this).closest('.question-item').find('.options-group');
+
+                    if (selectedType == @((int)QuestionType.MultipleChoice) ||
+                        selectedType == @((int)QuestionType.MultipleAnswers) ||
+                        selectedType == @((int)QuestionType.Matching) ||
+                        selectedType == @((int)QuestionType.Ranking)) {
+                        optionsGroup.show();
+                    } else {
+                        optionsGroup.hide();
+                    }
+                });
+            }
+        });
+    </script>
+}

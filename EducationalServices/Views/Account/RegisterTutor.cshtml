@@ -1,0 +1,84 @@
+﻿@model EducationalServices.Models.RegisterViewModel
+
+@{
+    ViewBag.Title = "Register Tutor";
+}
+
+<h2>Register Tutor</h2>
+
+<style>
+    .custom-card {
+        background-color: #f8f9fa; /* Off-white color */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow */
+    }
+</style>
+
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <!-- Center vertically -->
+        <div class="col-md-6">
+            <div class="card custom-card">
+                <!-- Add custom-card class here -->
+                <div class="card-body">
+                    <h2 class="card-title text-center"<span style="color: #06BBCC">@ViewBag.Title.</span></h2> <!-- Center title -->
+
+                    @using (Html.BeginForm("RegisterTutor", "Account", FormMethod.Post, new { role = "form" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <hr />
+                        @Html.ValidationSummary("", new { @class = "text-danger" })
+                        <br />
+                        <div class="form-group row">
+                            @Html.LabelFor(m => m.Email, new { @class = "col-md-3 col-form-label text-right" })
+                            <div class="col-md-9 mx-auto">
+                                <!-- Center text box -->
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <br />
+                        <div class="form-group row">
+                            @Html.LabelFor(m => m.FirstName, new { @class = "col-md-3 col-form-label text-right" })
+                            <div class="col-md-9 mx-auto">
+                                <!-- Center text box -->
+                                @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <br />
+                        <div class="form-group row">
+                            @Html.LabelFor(m => m.LastName, new { @class = "col-md-3 col-form-label text-right" })
+                            <div class="col-md-9 mx-auto">
+                                <!-- Center text box -->
+                                @Html.TextBoxFor(m => m.LastName, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <br />
+                        <div class="form-group row">
+                            @Html.LabelFor(m => m.Password, new { @class = "col-md-3 col-form-label text-right" })
+                            <div class="col-md-9 mx-auto">
+                                <!-- Center text box -->
+                                @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <br />
+                        <div class="form-group row">
+                            @Html.LabelFor(m => m.ConfirmPassword, new { @class = "col-md-3 col-form-label text-right" })
+                            <div class="col-md-9 mx-auto">
+                                <!-- Center text box -->
+                                @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <br />
+                        <div class="form-group text-center">
+                            <!-- Center button -->
+                            <input type="submit" value="Register" class="btn btn-outline-dark" />
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,628 @@
+﻿@model IEnumerable<EducationalServices.Models.Cart>
+@using Microsoft.AspNet.Identity
+@{
+    ViewBag.Title = "View Cart";
+    decimal Total = 0;
+    decimal SubTotal = 0;
+    EducationalServices.Models.ApplicationDbContext db = new EducationalServices.Models.ApplicationDbContext();
+    var UserId = User.Identity.GetUserId();
+    var CheckUserCards = db.Cards.Where(x => x.UserId == UserId).ToList();
+    var clientInfo = db.CustInfos.Where(x => x.Email == User.Identity.Name).FirstOrDefault();
+}
+
+<head>
+    <style>
+        #preffaredTime {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: white;
+            font-size: 16px;
+            color: #333;
+            appearance: none;
+            -moz-appearance: none;
+            -webkit-appearance: none;
+        }
+
+            #preffaredTime:hover {
+                border-color: #aaa;
+            }
+
+            #preffaredTime:focus {
+                outline: none;
+                border-color: #0056b3;
+            }
+
+
+        .select-wrapper {
+            position: relative;
+            width: 50%;
+        }
+
+            .select-wrapper:after {
+                content: '\25BC';
+                position: absolute;
+                top: 50%;
+                right: 8px;
+                transform: translateY(-50%);
+                pointer-events: none;
+                color: #333;
+                font-size: 16px;
+            }
+
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            width: 62%;
+            display: flex;
+            justify-content: space-between; /* Aligns children (form and summary) side by side */
+        }
+
+        /* Button and form styling */
+        .options-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .toggle-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 20px 40px; /* Increased padding for larger buttons */
+            margin: 0 10px;
+            cursor: pointer;
+            font-size: 20px; /* Larger font size for better readability */
+            border-radius: 8px; /* Smoothed corners for a better look */
+            outline: none;
+            transition: background-color 0.3s, transform 0.3s ease, opacity 0.3s ease; /* Added transitions for transform and opacity */
+        }
+
+            .toggle-btn:hover {
+                background-color: #0056b3;
+            }
+
+            .toggle-btn.hide {
+                transform: scale(0.1); /* Scale down to hide */
+                opacity: 0; /* Become transparent */
+                transition: transform 0.3s ease, opacity 0.3s ease; /* Ensure transitions apply during hide */
+            }
+
+
+        .form-panel {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+            .form-panel.active {
+                display: block;
+            }
+
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+            button[type="submit"]:hover {
+                background-color: #0056b3;
+            }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 30px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+        }
+
+            .close-btn:hover {
+                color: #000;
+            }
+
+
+        .order-content {
+            flex-grow: 1; /* Allows it to take up the remaining space */
+        }
+
+        .cost-summary {
+            width: 250px; /* Keeps the width fixed for the summary */
+            padding: 20px;
+            border-left: 1px solid #ccc;
+            background-color: #f8f9fa;
+            min-width: 250px; /* Ensures it doesn't get too small */
+        }
+
+            .cost-summary h3 {
+                margin-top: 0;
+            }
+
+            .cost-summary ul {
+                list-style: none;
+                padding: 0;
+            }
+
+            .cost-summary li {
+                padding: 5px 0;
+                font-size: 16px;
+            }
+
+            .cost-summary span {
+                float: right;
+                font-weight: bold;
+            }
+
+        .content-row {
+            display: flex;
+            justify-content: space-between; /* Ensures space between forms and summary */
+            align-items: start; /* Aligns items at the top */
+        }
+    </style>
+</head>
+
+
+
+
+
+
+
+<h2>View Cart</h2>
+
+<section class="h-100">
+    <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col">
+                <div class="card">
+
+                    <div class="card-body p-4">
+                        @if (Model.Count() != 0)
+                        {
+                            <div class="row">
+                                <div class="col-lg-7">
+                                    <h5 class="mb-3">
+                                        <a href="~/Products/Index" class="text-body">
+                                            <i class="fas fa-long-arrow-alt-left me-2"></i>Continue shopping
+                                        </a>
+                                    </h5>
+                                    <hr>
+
+                                    @foreach (var item in Model)
+                                    {
+                                        <div class="card mb-3 mb-lg-0">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between">
+                                                    <div class="d-flex flex-row align-items-center">
+                                                        <div>
+                                                            <img src="data:image;base64,@item.Picture" class="img-fluid rounded-3" alt="Shopping item" style="width: 65px;">
+                                                        </div>
+                                                        <div class="ms-3">
+                                                            <h5>@item.Name</h5>
+                                                            <p class="small mb-0">@item.Description</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex flex-row align-items-center">
+                                                        <div>
+                                                            <h5 class="fw-normal mb-0">
+                                                                <input style="width:20%" type="number" min="1" value="@item.StockQuantity" onchange="updateCartItemQuantity('@item.ProductId', this.value)" />
+
+                                                            </h5>
+                                                        </div>
+
+                                                        <div style="width: 100px;">
+                                                            <h5 class="mb-0">@item.Price.ToString("R0.00")</h5>
+                                                        </div>
+                                                        <form method="post" action="~/Products/DeleteCartItem">
+                                                            <input name="ProductId" value="@item.ProductId" hidden />
+                                                            <button type="submit" class="btn btn-danger">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        SubTotal += (item.StockQuantity * item.Price);
+                                    }
+                                </div>
+                                <div class="col-lg-5">
+
+                                    <div class="card bg-primary text-white rounded-3">
+                                        <div class="card-body">
+
+
+
+                                            @{ Total = (SubTotal * 15 / 100) + SubTotal;
+                                            }
+
+                                            <hr class="my-4">
+
+                                            <div class="d-flex justify-content-between">
+                                                <p class="mb-2">Subtotal</p>
+                                                <p class="mb-2">@SubTotal.ToString("R0.00")</p>
+                                            </div>
+
+                                            <div class="d-flex justify-content-between mb-4">
+                                                <p class="mb-2">Total(Incl. taxes)</p>
+                                                <p class="mb-2">@Total.ToString("R0.00")</p>
+                                            </div>
+
+                                            <button id="openModalBtn" data-mdb-button-init data-mdb-ripple-init class="btn btn-info btn-block btn-lg">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>@Total.ToString("R0.00")</span>
+                                                    <span>Checkout <i class="fas fa-long-arrow-alt-right ms-2"></i></span>
+                                                </div>
+                                            </button>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+                        }
+                        else
+                        {
+                            <h1 class="text-danger">No Items Added</h1>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Review Order</h2>
+        <div class="options-toggle">
+            <button id="collectBtn" class="toggle-btn">Switch To Collect</button>
+            <button id="deliveryBtn" class="toggle-btn">Switch To Delivery</button>
+        </div>
+
+        <!-- Content Row to hold both forms and summary -->
+        <div class="content-row">
+            <!-- Order Forms Content -->
+            <div class="order-content">
+                <!-- Collect Form -->
+                <div id="collectForm" class="form-panel">
+                    <h2>Collect</h2>
+                    <form>
+                        <input type="text" placeholder="Name">
+                        <input type="text" placeholder="Phone Number">
+                        <div>
+                            <button type="button" class="btn btn-primary">Proceed To Payment</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Delivery Form -->
+                <div id="deliveryForm" class="form-panel" style="display:none;">
+                    <h2>Delivery</h2>
+
+                    @if (clientInfo != null)
+                    {
+                        <form action="@Url.Action("Update", "CustInfos")" method="post">
+                            <input type="text" id="RecipientName" name="RecipientName" placeholder="Recipient Names" value="@clientInfo.RecipientName" required>
+                            @if (@clientInfo.RecipientNumber == null)
+                            {
+                                <input type="text" id="RecipientNumber" name="RecipientNumber" placeholder="Recipient Phone Number" required>
+                                <select id="preffaredTime" name="preffaredTime" required>
+                                    <option value="">Delivery Time</option>
+                                    <option value="Morning(6 am -10am)">Morning (6 am - 10 am)</option>
+                                    <option value="Day(11am – 2pm)">Day (11 am – 2 pm)</option>
+                                    <option value="Early Afternoon (1pm - 3pm)">Afternoon (3 pm – 6 pm)</option>
+                                </select>
+                                <input type="text" id="Address" name="Address" placeholder="Delivery Address" required>
+                            }
+                            else
+                            {
+                                <input type="text" placeholder="Recipient Phone Number" value="@clientInfo.RecipientNumber" required>
+                                <select id="preffaredTime" name="preffaredTime" required>
+                                    <option value="">Delivery Time</option>
+                                    <option value="Morning(6 am -10am)">Morning (6 am - 10 am)</option>
+                                    <option value="Day(11am – 2pm)">Day (11 am – 2 pm)</option>
+                                    <option value="Early Afternoon (1pm - 3pm)">Afternoon (3 pm – 6 pm)</option>
+                                </select>
+                                <input type="text" id="Address" name="Address" placeholder="Delivery Address" value="@clientInfo.Address" required>
+                            }
+
+                            <input type="hidden" id="deliveryDate" name="deliveryDate" value="">
+                            <input type="hidden" id="basicCost" value="@Total" />
+                            <input type="hidden" id="totalCost" name="totalCost" value="" />
+                            <input type="hidden" id="ShippingMethod" name="ShippingMethod" value="" />
+                            <input type="hidden" id="deliveryFee" name="deliveryFee" value="" />
+                            <div>
+                                <button type="submit" class="btn btn-primary">Proceed To Payment</button>
+                            </div>
+                        </form>
+                    }
+
+
+                </div>
+            </div>
+
+            <!-- Cost Summary Panel -->
+            <div class="cost-summary" id="collectionDetails">
+                <h3>Order Summary</h3>
+                <ul>
+                    <li>Products Cost: <span id="productsCost">@Total.ToString("R0.00")</span></li>
+                    <li>Date: <span id="collectDate"></span></li>
+                    <li>Collect From: <strong>7 Ritson Rd, Musgrave, Berea, 4001</strong></li>
+
+
+                </ul>
+            </div>
+            <div class="cost-summary" id="deliveryDetails">
+                <h3>Order Summary</h3>
+                <ul>
+                    <li>Products Cost: <span id="productsCost">@Total.ToString("R0.00")</span></li>
+                    <li>Delivery Cost: <span id="DeliveryCost"> </span></li>
+                    <li>Total Cost: <span id="TotalCost"></span></li>
+                    <li>Deliver From: <span id="DeliveryDate"></span></li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function updateCartItemQuantity(productId, newQuantity) {
+        fetch('/Products/UpdateCart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId: productId, newQuantity: newQuantity })
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Request failed: ' + response.status);
+                }
+            })
+            .then(data => {
+                if (data.success) {
+
+                    document.getElementById('productsCost').text = data.cartTotal.toFixed(2);
+
+                    location.reload();
+                } else {
+                    throw new Error('Request failed: ' + data.message);
+
+                }
+            })
+            .catch(error => console.error('Error updating cart:', error));
+    }
+
+
+</script>
+
+<script>
+    $('#deliveryDetails').hide();
+    var modal = document.getElementById('myModal');
+    var btn = document.getElementById('openModalBtn');
+    var collectBtn = document.getElementById('collectBtn');
+    var deliveryBtn = document.getElementById('deliveryBtn');
+    var collectForm = document.getElementById('collectForm');
+    var deliveryForm = document.getElementById('deliveryForm');
+    var closeButton = document.getElementsByClassName('close-btn')[0];
+    var basicCost = parseFloat($("#basicCost").val()) || 0;
+
+    btn.onclick = function () {
+        modal.style.display = "block";
+        showForm('collect'); // Show collect form by default when opening modal
+    }
+
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    closeButton.onclick = function () {
+        modal.style.display = "none";
+    }
+    collectBtn.onclick = function () {
+        showForm('collect');
+        $('#deliveryDetails').hide();
+        $('#collectionDetails').show();
+        $('#ShippingMethod').val("Collect");
+        $('#totalCost').val(basicCost.toFixed(2));
+        $('#TotalCost').text('R' + basicCost.toFixed(2));
+
+
+    }
+
+    deliveryBtn.onclick = function () {
+        showForm('delivery');
+        $('#deliveryDetails').show();
+        $('#collectionDetails').hide();
+        $('#ShippingMethod').val("Delivery");
+        updateTotalCost();
+
+    }
+
+    function showForm(formType) {
+        if (formType === 'collect') {
+            collectForm.style.display = 'block';
+            deliveryForm.style.display = 'none';
+            toggleButtons(deliveryBtn, collectBtn);
+        } else {
+            collectForm.style.display = 'none';
+            deliveryForm.style.display = 'block';
+            toggleButtons(collectBtn, deliveryBtn);
+        }
+    }
+
+    function toggleButtons(showButton, hideButton) {
+        hideButton.classList.add('hide'); // Add 'hide' class to start animation
+        setTimeout(function () {
+            hideButton.style.display = 'none'; // Completely hide after animation
+            showButton.style.display = 'inline-block'; // Display the other button
+            showButton.classList.remove('hide'); // Remove 'hide' class if it was added
+        }, 300); // Delay matches transition duration
+    }
+
+    function updateTotalCost() {
+        var basicCost = parseFloat($("#basicCost").val()) || 0; // Default to 0 if undefined
+        var deliveryCost = parseFloat($('#DeliveryCost').text().replace('R', '')) || 0;
+        var totalCost = basicCost + deliveryCost;
+        $('#TotalCost').text('R' + totalCost.toFixed(2));
+        $('#totalCost').val(totalCost.toFixed(2));
+        $('#deliveryFee').val(deliveryCost.toFixed(2));
+    }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAqHXPxdgr3xi02C7qEDoYjSHpgBZ-WL0g&libraries=places"></script>
+
+
+<script>
+    $(document).ready(function () {
+        // Initialize the Google Places autocomplete
+        function initializeAutocomplete() {
+            var input = document.getElementById('Address');
+            var autocomplete = new google.maps.places.Autocomplete(input);
+
+            // Add event listener for when a new place is selected
+            autocomplete.addListener('place_changed', function () {
+                var place = autocomplete.getPlace();
+                if (!place.geometry) {
+                    console.log("Returned place contains no geometry");
+                    alert("No details available for input: '" + (place.name ? place.name : "Unknown") + "'");
+                    return;
+                }
+                var address = place.formatted_address;
+                $('#Address').val(address);
+                calculateDistanceAndCost(); // Trigger cost calculations when a place is selected
+            });
+
+            // Trigger cost calculation when the user manually edits the address field
+            $('#Address').change(function () {
+                calculateDistanceAndCost(); // Trigger cost calculations on address change
+            });
+        }
+
+        // Function to calculate distance and delivery cost
+        function calculateDistanceAndCost() {
+            var origin = "7 Ritson Rd, Musgrave, Berea, 4001";
+            var destination = $("#Address").val();
+            var service = new google.maps.DistanceMatrixService();
+            service.getDistanceMatrix({
+                origins: [origin],
+                destinations: [destination],
+                travelMode: google.maps.TravelMode.DRIVING,
+                unitSystem: google.maps.UnitSystem.METRIC
+            }, function (response, status) {
+                if (status === google.maps.DistanceMatrixStatus.OK && response.rows[0].elements[0].status !== 'ZERO_RESULTS') {
+                    var distance = response.rows[0].elements[0].distance.value / 1000; // Convert meters to kilometers
+                    var deliveryCost = calculateDeliveryCost(distance);
+                    $('#DeliveryCost').text('R' + deliveryCost.toFixed(2));
+                    updateTotalCost();
+                } else {
+                    $('#DeliveryCost').text("Delivery calculation error");
+                    console.error("Error with the Distance Matrix response: " + status);
+                }
+            });
+        }
+
+        // Function to calculate delivery cost based on distance
+        function calculateDeliveryCost(distance) {
+            return distance * 20; // Assuming R20 per km
+        }
+
+        // Update total cost based on basic and delivery costs
+        function updateTotalCost() {
+            var basicCost = parseFloat($("#basicCost").val()) || 0; // Default to 0 if undefined
+            var deliveryCost = parseFloat($('#DeliveryCost').text().replace('R', '')) || 0;
+            var totalCost = basicCost + deliveryCost;
+            $('#TotalCost').text('R' + totalCost.toFixed(2));
+            $('#totalCost').val(totalCost.toFixed(2));
+            $('#deliveryFee').val(deliveryCost.toFixed(2));
+        }
+
+        // Initialize the autocomplete and calculate delivery cost on load
+        initializeAutocomplete();
+        calculateDistanceAndCost(); // Trigger the calculation on page load
+    });
+
+</script>
+
+
+<script>
+    
+    function getWorkingDay(startDate, daysToAdd) {
+        var count = 0;
+        var result = new Date(startDate);
+        while (count < daysToAdd) {
+            result.setDate(result.getDate() + 1);
+            if (result.getDay() !== 0 && result.getDay() !== 6) { 
+                count++;
+            }
+        }
+        return result.toDateString();
+    }
+
+    // Get the collect date and display it
+    var collectDateElement = document.getElementById('collectDate');
+    var today = new Date();
+    var collectDate = getWorkingDay(today, 3); // 3 working days from today
+    collectDateElement.textContent = collectDate;
+</script>
+<script>
+    // Function to get the next working day excluding weekends
+    function getWorkingDay(startDate, daysToAdd) {
+        var count = 0;
+        var result = new Date(startDate);
+        while (count < daysToAdd) {
+            result.setDate(result.getDate() + 1);
+            if (result.getDay() !== 0 && result.getDay() !== 6) { // Exclude Sunday (0) and Saturday (6)
+                count++;
+            }
+        }
+        return result.toDateString();
+    }
+
+    // Get the collect date and display it
+    var deliveryDateElement = document.getElementById('deliveryDate');
+    var DeliveryDateElement = document.getElementById('DeliveryDate');
+    var today = new Date();
+    var DeliveryDate = getWorkingDay(today, 5); // 3 working days from today
+    DeliveryDateElement.textContent = DeliveryDate;
+    deliveryDateElement.value = DeliveryDate;
+</script>

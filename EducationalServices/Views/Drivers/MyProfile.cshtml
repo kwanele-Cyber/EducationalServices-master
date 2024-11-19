@@ -1,0 +1,129 @@
+﻿@model IEnumerable<EducationalServices.Models.Driver>
+@using EducationalServices.Models
+@{
+    ApplicationDbContext db = new ApplicationDbContext();
+    ViewBag.Title = "MyProfile";
+}
+
+<style>
+    .profile-head {
+        transform: translateY(5rem);
+    }
+
+    .cover {
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+
+    .profile-card {
+        width: 100%;
+    }
+
+    .additional-info {
+        padding: 0 20px;
+    }
+
+    .profile-content {
+        display: flex;
+        align-items: flex-end;
+    }
+
+        .profile-content .profile-info {
+            margin-left: 20px;
+        }
+</style>
+<h2>MyProfile</h2>
+@foreach (var item in Model)
+{
+    <div class="row py-5 px-4" style="width:100%">
+        <div class="col-md-7 mx-auto">
+            <!-- Profile widget -->
+            <div class="bg-white shadow rounded overflow-hidden">
+                <div class="px-4 pt-0 pb-4 cover">
+                    <div class="media align-items-end profile-head">
+                        <div class="profile-content">
+                            <div class="profile">
+                                <img src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80" alt="..." width="130" class="rounded mb-2 img-thumbnail">
+                            </div>
+
+                            <div class="additional-info" style="padding-left:20%">
+                                <!-- New section for additional information -->
+                                <h5>Driver Information</h5>
+                                <p>Email: @item.Email</p>
+                                <p>Phone: @item.PhoneNumber</p>
+                                @*<p>Availabili: www.example.com</p>*@
+                            </div>
+                            @if (User.IsInRole("Admin")) // Replace "YourRoleNameHere" with the actual role name you want to check
+                            {
+                                <a href="@Url.Action("Create", "DriverAssignments", new { id = item.DrivId })" class="btn btn-outline-dark btn-sm btn-block">Assign</a>
+                            }
+
+                        </div>
+                        <div class="media-body mb-5 text-white profile-info">
+                            <h4 class="mt-0 mb-0">@item.Name @item.Surname</h4>
+                            <p class="small mb-4"> <i class="fas fa-map-marker-alt mr-2"></i>@item.Surname</p>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-light p-4 d-flex justify-content-end text-center" style="padding-top:20%">
+                    <ul class="list-inline mb-0">
+                        <li class="list-inline-item">
+                            <h5 class="font-weight-bold mb-0 d-block">Vehicle</h5>
+                            <small class="text-muted"> @item.CarType</small>
+                        </li>
+                        <li class="list-inline-item">
+                            <h5 class="font-weight-bold mb-0 d-block">Model</h5>
+                            <small class="text-muted"> @item.CarModel</small>
+                        </li>
+                        <li class="list-inline-item">
+                            <h5 class="font-weight-bold mb-0 d-block">Name</h5>
+                            <small class="text-muted"> @item.CarName</small>
+                        </li>
+                        <li class="list-inline-item">
+                            <h5 class="font-weight-bold mb-0 d-block">Registration</h5>
+                            <small class="text-muted"> @item.CarReg</small>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="px-4 py-3">
+
+                    <h5 class="mb-0">Due Deliveries</h5>
+                    <div class="p-4 rounded shadow-sm bg-light">
+                        @{var deliveries = db.DriverAssignments.Where(x => x.AssDrivId == item.DrivId).ToList();}
+                        @if (deliveries != null && deliveries.Any())
+                        {
+                            <table class="table">
+                                <tr>
+                                    <td>Date:</td>
+                                    <td>Time:</td>
+                                    <td>Address:</td>
+                                    <td>OrderNo:</td>
+                                </tr>
+
+                                @foreach (var delivery in deliveries)
+                                {
+                                    <tr>
+                                        <td>@delivery.DeliveryDate</td>
+                                        <td>@delivery.DeliveryTime</td>
+                                        <td>@delivery.Orders.Address</td>
+                                        <td>@delivery.Orders.OrderId</td>
+                                    </tr>
+
+                                }
+                            </table>
+                        }
+                        else
+                        {
+                            <p>No deliveries assigned.</p>
+                        }
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}

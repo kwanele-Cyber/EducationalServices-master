@@ -1,0 +1,45 @@
+﻿@model EducationalServices.Models.Quiz
+
+@{
+    ViewBag.Title = "Quiz Details";
+}
+
+<div class="container mt-4">
+    <h2>@Model.Title</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Module: @Model.Module.Subject</h5>
+            <p class="card-text">@Model.Description</p>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Start Time: @Model.StartTime.ToString("g")</li>
+                <li class="list-group-item">End Time: @Model.EndTime.ToString("g")</li>
+                <li class="list-group-item">Time Limit: @(Model.TimeLimit > 0 ? $"{Model.TimeLimit} minutes" : "No limit")</li>
+                <li class="list-group-item">Max Attempts: @Model.MaxAttempts</li>
+            </ul>
+        </div>
+        <div class="card-footer">
+            @if (DateTime.Now >= Model.StartTime && DateTime.Now <= Model.EndTime)
+            {
+                @Html.ActionLink("Take Quiz", "Take", new { id = Model.QuizId }, new { @class = "btn btn-primary" })
+            }
+            else if (DateTime.Now < Model.StartTime)
+            {
+                <button class="btn btn-secondary" disabled>Not Yet Available</button>
+            }
+            else
+            {
+                @Html.ActionLink("View Results", "Results", new { quizId = Model.QuizId }, new { @class = "btn btn-info" })
+
+
+
+            }
+
+
+            @if (User.IsInRole("Admin") || User.IsInRole("Tutor"))
+            {
+                @Html.ActionLink("View Ratings", "QuizRatings", new { quizId = Model.QuizId }, new { @class = "btn btn-info" })
+            }
+
+        </div>
+    </div>
+</div>

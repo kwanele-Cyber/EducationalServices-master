@@ -1,0 +1,49 @@
+﻿@model IEnumerable<EducationalServices.Models.StudentModule>
+
+@{
+    ViewBag.Title = "Registered Students";
+}
+@if (User.IsInRole("Admin"))
+{
+    <h2>Registered Students</h2>
+}
+else
+{
+    <h2>My Module Receipts</h2>
+}
+
+@if (TempData["Success"] != null)
+{
+    <button class="btn-lg btn-success">@TempData["Success"]</button>
+    TempData["Success"] = null;
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Student</th>
+            <th>Module</th>
+            <th>Description</th>
+            <th>Hours</th>
+            <th>Difficulty</th>
+            <th>Status</th>
+            <th>Total Paid</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var studentModule in Model)
+        {
+            <tr>
+                <td>@studentModule.StudentModuleId</td>
+                <td>@studentModule.User.Email</td>
+                <td>@studentModule.Module.Subject</td>
+                <td>@studentModule.Module.Description</td>
+                <td>@studentModule.Module.DurationInHours</td>
+                <td>@studentModule.Module.Difficulty</td>
+                <td>@studentModule.Status</td>
+                <td>@studentModule.TotalPaid</td>
+            </tr>
+        }
+    </tbody>
+</table>

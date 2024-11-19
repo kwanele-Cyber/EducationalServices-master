@@ -1,0 +1,17 @@
+﻿@model IEnumerable<EducationalServices.Models.DigitalResource>
+
+@{
+    ViewBag.Title = "Digital Resources";
+}
+
+<h2>Digital Resources</h2>
+
+<ul>
+    @foreach (var resource in Model)
+    {
+        <li>
+            <strong>@resource.Title</strong> -
+            <a href="@resource.Url" target="_blank">Access Resource</a>
+        </li>
+    }
+</ul>

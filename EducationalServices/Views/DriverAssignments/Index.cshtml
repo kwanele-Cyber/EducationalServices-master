@@ -1,0 +1,232 @@
+﻿@model IEnumerable<EducationalServices.Models.DriverAssignment>
+@using EducationalServices.Models
+@{
+    ViewBag.Title = "Index";
+    ApplicationDbContext db = new ApplicationDbContext();
+}
+
+<h2>Index</h2>
+
+@*<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Driver.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Orders.UserId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Surname)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Email)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Status)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.DeliveryDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.DeliveryTime)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Created)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.IsActive)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.GenDeliveryDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.preffaredTime)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Driver.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Orders.UserId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Surname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DeliveryDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DeliveryTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Created)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsActive)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GenDeliveryDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.preffaredTime)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.AssDrivId }) |
+                @Html.ActionLink("Details", "Details", new { id = item.AssDrivId }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.AssDrivId })
+            </td>
+        </tr>
+    }
+
+</table>*@
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+</head>
+
+@foreach (var item in Model)
+{
+    <div class="container">
+        <div class="main-body">
+            <div class="row">
+
+                <div class="col-lg-8">
+
+                    <div class="card mt-4">
+                        <div class="card-body p-0 table-responsive">
+                            <h4 class="p-3 mb-0">Order: @item.OrderId &nbsp; Date: @item.Orders.OrderDate.ToLongDateString() </h4>
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Description</th>
+                                        <th scope="col"></th>
+                                        <th scope="col">Quantity</th>
+                                        <th scope="col">Amount</th>
+                                        <th scope="col">Weight</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{var products = db.OrderDetails.Where(x => x.OrderId == item.OrderId).ToList();
+                                    }
+
+                                    @foreach (var prod in products)
+                                    {
+                                        <tr>
+
+                                            <th>
+                                                <img src="data:image;base64,@prod.Picture"
+                                                     alt="product" class="" width="80">
+                                            </th>
+                                            <td>
+                                                @prod.Name
+                                            </td>
+                                            <td>@prod.StockQuantity</td>
+                                            <td><strong>@prod.Price.ToString("R0.00")</strong></td>
+
+                                            <td><span class="badge badge-warning">@prod.Weight</span></td>
+
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <th colspan="2">
+                                            <span>Delivery Date: @item.DeliveryDate</span>
+                                            <span>Delivery Time: @item.DeliveryTime</span>
+                                            @if (item.Status == "Placed")
+                                            {
+                                                <span class="badge badge-success">PENDING</span>
+                                            }
+
+                                        </th>
+                                        <td>
+                                            <span class="text-muted">Product Cost</span>
+                                            <strong>@item.Orders.ProductCost.ToString("R0.00")</strong>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">Delivery Fee</span>
+                                            <strong>@item.Orders.DeliveryFee.ToString("R0.00")</strong>
+                                        </td>
+                                        <td>
+
+                                            <span class="text-muted">Total</span>
+                                            <strong>@item.Orders.TotalAmount.ToString("R0.00")</strong>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="list-group-item list-group-item-action border-0 btn btn-primary" data-toggle="modal" data-target="#deliveriesModal-@item.DrivId">
+                                                More info
+                                            </button>
+                                            <button class="btn btn-outline-dark" style="margin-left: 5px;" onclick="location.href='@Url.Action(actionName: "Index", controllerName: "Drivers", routeValues: new { orderId = item.OrderId })'">Start Delivery</button>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deliveriesModal-@item.DrivId" tabindex="-1" role="dialog" aria-labelledby="deliveriesModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deliveriesModalLabel">Assignment Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Order Number: @item.OrderId</p>
+                    <p>Driver: @item.Driver.Name  @item.Driver.Surname</p>
+                    <p>Driver Email: @item.Email</p>
+                    <p>Delivery Date: @item.DeliveryDate</p>
+                    <p>Delivery Time: @item.DeliveryTime</p>
+                    <p>Assigned at: @item.Created</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous">
+</script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous">
+</script>
+

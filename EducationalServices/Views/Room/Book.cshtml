@@ -1,0 +1,22 @@
+﻿@model EducationalServices.Models.RoomBookingViewModel
+
+<h2>Book Room: @Model.RoomName</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.RoomId)
+    @Html.HiddenFor(m => m.RoomName)
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.StartTime)
+        @Html.EditorFor(m => m.StartTime, new { htmlAttributes = new { @class = "form-control", @type = "datetime-local" } })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.EndTime)
+        @Html.EditorFor(m => m.EndTime, new { htmlAttributes = new { @class = "form-control", @type = "datetime-local" } })
+    </div>
+
+    <button type="submit" class="btn btn-primary">Book Room</button>
+}

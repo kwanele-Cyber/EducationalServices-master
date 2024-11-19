@@ -1,0 +1,58 @@
+﻿@model EducationalServices.Models.QuizStatisticsViewModel
+
+@{
+    ViewBag.Title = "Quiz Statistics";
+}
+
+<div class="container mt-4">
+    <h2>Quiz Statistics: @Model.Quiz.Title</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">General Statistics</h5>
+                    <p>Total Attempts: @Model.TotalAttempts</p>
+                    <p>Average Score: @Model.AverageScore.ToString("F2")</p>
+                    <p>Highest Score: @Model.HighestScore</p>
+                    <p>Lowest Score: @Model.LowestScore</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Completion Rate</h5>
+                    <p>Completed: @Model.CompletedAttempts</p>
+                    <p>Incomplete: @Model.IncompleteAttempts</p>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: @(Model.CompletionRate)%;" aria-valuenow="@Model.CompletionRate" aria-valuemin="0" aria-valuemax="100">@Model.CompletionRate.ToString("F2")%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3>Question Statistics</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Question</th>
+                <th>Correct Answers</th>
+                <th>Incorrect Answers</th>
+                <th>Correct Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var questionStat in Model.QuestionStatistics)
+            {
+                <tr>
+                    <td>@questionStat.QuestionText</td>
+                    <td>@questionStat.CorrectAnswers</td>
+                    <td>@questionStat.IncorrectAnswers</td>
+                    <td>@questionStat.CorrectPercentage.ToString("F2")%</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,45 @@
+﻿@model EducationalServices.Models.QuizRatingsViewModel
+
+@{
+    ViewBag.Title = "Quiz Ratings";
+}
+
+<div class="container mt-4">
+    <h2>Ratings for @Model.Quiz.Title</h2>
+    <p>Module: @Model.Quiz.Module.Subject</p>
+
+    @if (Model.Ratings.Any())
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Rating</th>
+                    <th>Comment</th>
+                    <th>Date Rated</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var rating in Model.Ratings)
+                {
+                    <tr>
+                        <td>@rating.Student.UserName</td>
+                        <td>@rating.Rating / 5</td>
+                        <td>@rating.Comment</td>
+                        <td>@rating.DateRated.ToString("g")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info" role="alert">
+            No ratings have been submitted for this quiz yet.
+        </div>
+    }
+
+    <div class="mt-3">
+        @Html.ActionLink("Back to Quiz Details", "Details", new { id = Model.Quiz.QuizId }, new { @class = "btn btn-secondary" })
+    </div>
+</div>

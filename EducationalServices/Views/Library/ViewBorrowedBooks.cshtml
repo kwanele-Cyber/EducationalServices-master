@@ -1,0 +1,241 @@
+﻿@model IEnumerable<EducationalServices.Models.Borrow>
+@{
+    var currentDate = DateTime.Now.Date;
+    var daysLeft = 0;
+    var isReturned = false;
+    var isOverdue = false;
+
+
+    void UpdateValues(EducationalServices.Models.Borrow borrow)
+    {
+        daysLeft = (borrow.DueDate - currentDate).Days;
+        var isReturned = borrow.ReturnDate.HasValue;
+        var isOverdue = !isReturned && currentDate > borrow.DueDate;
+    }
+}
+
+<div class="container-fluid">
+    <h2 class="mb-4">My Borrowed Books</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>You haven't borrowed any books yet.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover border">
+                <thead class="table-light">
+                    <tr>
+                        <th>Cover</th>
+                        <th>Book Details</th>
+                        <th>Borrow Date</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var borrow in Model)
+                    {
+                        //Update initiated values
+                        UpdateValues(borrow);
+
+
+                        <tr class="@(isOverdue ? "table-danger" : "")">
+                            <td class="align-middle">
+                                @if (!string.IsNullOrEmpty(borrow.Book.ImagePath))
+                                {
+                                    <img src="~/Content/img/@borrow.Book.ImagePath"
+                                         alt="@borrow.Book.Title Cover"
+                                         class="img-thumbnail"
+                                         style="max-width: 100px; max-height: 150px;" />
+                                }
+                                else
+                                {
+                                    <div class="text-center text-muted">
+                                        <i class="fas fa-book fa-3x"></i>
+                                    </div>
+                                }
+                            </td>
+                            <td class="align-middle">
+                                <h5 class="mb-1">@borrow.Book.Title</h5>
+                                <small class="text-muted">@borrow.Book.Author</small>
+                            </td>
+                            <td class="align-middle">
+                                @borrow.BorrowDate.ToString("MMM dd, yyyy")
+                            </td>
+                            <td class="align-middle">
+                                @borrow.DueDate.ToString("MMM dd, yyyy")
+                            </td>
+                            <td class="align-middle">
+                                
+                                @if (borrow.DueDate > currentDate)
+                                {
+                                    if (isReturned || borrow.ReturnDate.HasValue)
+                                    {
+                                       <span class="badge bg-success">
+                                           <i class="fas fa-check-circle me-1"></i>
+                                           Returned on @borrow.ReturnDate.Value.ToString("MMM dd, yyyy")
+                                       </span>
+                                    }
+                                    else if (daysLeft <= 3)
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>Due in @daysLeft days
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-primary">
+                                            <i class="fas fa-clock me-1"></i>@daysLeft days left
+                                        </span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-exclamation-circle me-1"></i>@Math.Abs(daysLeft) days overdue
+                                    </span>
+                                }
+                            </td>
+                            
+                                    <!-- Previous code remains the same until the Actions column -->
+                            <td class="align-middle">
+                                <div class="btn-group">
+                                    @if (!isReturned && User.IsInRole("Admin"))
+                                    {
+                                        <form action="@Url.Action("ReturnBook", "Library")" method="get" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="borrowId" value="@borrow.BorrowId" />
+                                            <button type="submit" class="btn btn-primary btn-sm"
+                                                    onclick="return confirm('Are you sure you want to return this book?')"
+                                                    data-bs-toggle="tooltip"
+                                                    title="Return this book">
+                                                <i class="fas fa-undo-alt me-1"></i>Collect/Return Book
+                                            </button>
+                                        </form>
+                                    }
+
+                                    <!-- Extend button -->
+                                    <form action="@Url.Action("ExtendBorrowing", "Library")" method="post" class="d-inline @(!isReturned ? "ms-1" : "")">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="borrowId" value="@borrow.BorrowId" />
+                                        <button type="submit" class="btn btn-warning btn-sm"
+                                                onclick="return confirm('Extend borrowing period by 7 days?')"
+                                                data-bs-toggle="tooltip"
+                                                title="Extend by 7 days">
+                                            <i class="fas fa-clock me-1"></i>Extend
+                                        </button>
+                                    </form>
+
+                                    <!-- Report Lost/Damaged button -->
+                                    <button type="button" class="btn btn-danger btn-sm ms-1"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#reportModal-@borrow.BorrowId"
+                                            title="Report Lost or Damaged">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>Report Issue
+                                    </button>
+                                </div>
+
+                                <!-- Report Modal -->
+                                <div class="modal fade" id="reportModal-@borrow.BorrowId" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form action="@Url.Action("ReportIssue", "Library")" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="borrowId" value="@borrow.BorrowId" />
+
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Report Lost or Damaged Book</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Book Details</label>
+                                                        <p class="mb-1"><strong>@borrow.Book.Title</strong></p>
+                                                        <p class="text-muted small">by @borrow.Book.Author</p>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label for="issueType-@borrow.BorrowId" class="form-label">Issue Type</label>
+                                                        <select class="form-select" name="issueType" id="issueType-@borrow.BorrowId" required>
+                                                            <option value="">Select an issue...</option>
+                                                            <option value="Lost">Book is Lost</option>
+                                                            <option value="DamagedPages">Damaged Pages</option>
+                                                            <option value="DamagedCover">Damaged Cover</option>
+                                                            <option value="WaterDamage">Water Damage</option>
+                                                            <option value="Other">Other Issue</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label for="description-@borrow.BorrowId" class="form-label">Description of Issue</label>
+                                                        <textarea class="form-control" name="description"
+                                                                  id="description-@borrow.BorrowId" rows="3"
+                                                                  placeholder="Please provide details about what happened..." required></textarea>
+                                                    </div>
+
+                                                    <div class="alert alert-warning">
+                                                        <i class="fas fa-info-circle me-2"></i>
+                                                        Please note that reporting a lost or damaged book may incur fees based on the library's policy:
+                                                        <ul class="mb-0 mt-2">
+                                                            <li>Lost books: Full replacement cost</li>
+                                                            <li>Damaged books: Assessment based on damage severity</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-danger">
+                                                        <i class="fas fa-exclamation-triangle me-1"></i>Submit Report
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+
+            // Auto-hide alerts
+            setTimeout(function () {
+                $('.alert').fadeOut('slow');
+            }, 3000);
+        });
+    </script>
+}

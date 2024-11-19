@@ -1,0 +1,22 @@
+﻿@{
+    ViewBag.Title = "Catalog a Book";
+}
+
+<h2>Catalog a Book</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form action="@Url.Action("CatalogBook", "Library")" method="post">
+    <div class="form-group">
+        <label for="title">Book Title</label>
+        <input type="text" name="title" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="author">Author</label>
+        <input type="text" name="author" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Catalog</button>
+</form>

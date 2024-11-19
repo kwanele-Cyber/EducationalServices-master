@@ -1,0 +1,16 @@
+﻿@model EducationalServices.Models.SupportRequest
+
+
+<h2>Request Support</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Issue)
+        @Html.TextAreaFor(m => m.Issue, new { @class = "form-control" })
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit Request</button>
+}

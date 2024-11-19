@@ -1,0 +1,110 @@
+﻿@model EducationalServices.Models.AvailableQuizzesViewModel
+
+@{
+    ViewBag.Title = "Available Quizzes";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Available Quizzes</h2>
+
+    <ul class="nav nav-tabs mb-3" id="quizTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="current-tab" data-bs-toggle="tab" data-bs-target="#current" type="button" role="tab" aria-controls="current" aria-selected="true">Current Quizzes</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" type="button" role="tab" aria-controls="past" aria-selected="false">Past Quizzes</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="quizTabContent">
+        <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
+            @if (Model.AvailableQuizzes.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Title</th>
+                                <th>Module</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Time Limit</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var quiz in Model.AvailableQuizzes)
+                            {
+                                <tr>
+                                    <td>@quiz.Title</td>
+                                    <td>@quiz.Module.Subject</td>
+                                    <td>@quiz.StartTime.ToString("MMM dd, yyyy HH:mm")</td>
+                                    <td>@quiz.EndTime.ToString("MMM dd, yyyy HH:mm")</td>
+                                    <td>@(quiz.TimeLimit > 0 ? $"{quiz.TimeLimit} minutes" : "No limit")</td>
+                                    <td>
+                                        @Html.ActionLink("Take Quiz", "Take", new { id = quiz.QuizId }, new { @class = "btn btn-primary btn-sm" })
+                                        @Html.ActionLink("Details", "Details", new { id = quiz.QuizId }, new { @class = "btn btn-outline-secondary btn-sm" })
+                                        @Html.ActionLink("View Results", "Results", new { quizId = quiz.QuizId }, new { @class = "btn btn-info btn-sm" })
+
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    There are no quizzes currently available.
+                </div>
+            }
+        </div>
+
+        <div class="tab-pane fade" id="past" role="tabpanel" aria-labelledby="past-tab">
+            @if (Model.PastQuizzes.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Title</th>
+                                <th>Module</th>
+                                <th>End Time</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var quiz in Model.PastQuizzes)
+                            {
+                                <tr>
+                                    <td>@quiz.Title</td>
+                                    <td>@quiz.Module.Subject</td>
+                                    <td>@quiz.EndTime.ToString("MMM dd, yyyy HH:mm")</td>
+                                    <td>
+                                        @Html.ActionLink("View Results", "Results", new { quizId = quiz.QuizId }, new { @class = "btn btn-info btn-sm" })
+                                        @Html.ActionLink("Details", "Details", new { id = quiz.QuizId }, new { @class = "btn btn-outline-secondary btn-sm" })
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    There are no past quizzes.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+}

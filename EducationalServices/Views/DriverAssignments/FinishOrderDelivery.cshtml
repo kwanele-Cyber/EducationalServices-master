@@ -1,0 +1,76 @@
+﻿
+@{
+    ViewBag.Title = "FinishOrderDelivery";
+}
+
+<h2>Complete Delivery</h2>
+
+
+
+        
+        <div id="countdown"></div>
+        <form id="noResponseForm" action="@Url.Action("NoResponseAction", "DriverAssignments")" method="post">
+
+            <button type="submit" id="submitButton" style="display: none;"></button>
+        </form>
+        
+
+        <div id="manual-code-input">
+            <form id="code-form" method="post" action="@Url.Action("FinishOrderDelivery", "DriverAssignments")">
+                <label for="code-input">Please Enter Unique:</label>
+                <input type="text" id="code-input" name="code">
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+ 
+
+
+<script>
+    // Function to update countdown timer
+    function updateCountdown() {
+        var countdownElement = document.getElementById('countdown');
+        var minutes = Math.floor(timeLeft / 60);
+        var seconds = timeLeft % 60;
+
+        // Display remaining time in minutes and seconds
+        countdownElement.innerHTML = 'Waiting Time: ' + minutes + 'm ' + seconds + 's';
+
+        // Decrease time left by 1 second
+        timeLeft--;
+
+        // If time left is less than 0, submit the form
+        if (timeLeft < 0) {
+            clearInterval(timer);
+            // Show the submit button before submitting the form
+            document.getElementById('submitButton').style.display = 'block';
+            document.getElementById('noResponseForm').submit();
+        }
+    }
+
+    // Set the countdown duration in seconds (1 minute = 60 seconds)
+    var duration = 600;
+
+    // Calculate time left (in seconds)
+    var timeLeft = duration;
+
+    // Update countdown every second
+    var timer = setInterval(updateCountdown, 1000);
+</script>
+
+
+<script>
+    // Function to handle manual code submission
+    function submitManualCode() {
+        var manualCode = document.getElementById('code-input').value;
+        if (manualCode.trim() !== '') {
+            // Call a function to handle the manual code submission
+            document.getElementById('code-form').submit();
+        } else {
+            alert('Please enter a code.');
+        }
+    }
+
+    
+
+   
+</script>

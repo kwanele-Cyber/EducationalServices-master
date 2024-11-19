@@ -1,0 +1,171 @@
+﻿@{
+    ViewBag.Title = "Chat";
+}
+
+<div class="chat-container">
+    <h2>Chat</h2>
+    <div id="chatbox" class="chat-messages"></div>
+    <div class="chat-input">
+        <input type="text" id="message" placeholder="Type your message..." />
+        <button id="sendmessage" disabled>Send</button>
+    </div>
+</div>
+
+<style>
+    .chat-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        border-radius: 8px;
+    }
+
+    h2 {
+        color: #17a2b8;
+        margin-bottom: 20px;
+    }
+
+    .chat-messages {
+        height: 400px;
+        overflow-y: auto;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 20px;
+        background-color: #f8f9fa;
+    }
+
+    .chat-input {
+        display: flex;
+        gap: 10px;
+    }
+
+    #message {
+        flex-grow: 1;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    #sendmessage {
+        padding: 10px 20px;
+        background-color: #17a2b8;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        #sendmessage:hover {
+            background-color: #138496;
+        }
+
+        #sendmessage:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+    .message {
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 4px;
+        max-width: 80%;
+    }
+
+    .message-self {
+        background-color: #d4edda;
+        align-self: flex-end;
+        margin-left: auto;
+    }
+
+    .message-other {
+        background-color: #e9ecef;
+    }
+
+    .message-user {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+</style>
+
+@section scripts {
+    <script src="~/Scripts/jquery.signalR-2.4.3.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+    <script>
+        $(function () {
+            $.connection.hub.logging = true;
+            var chat = $.connection.chatHub;
+            var currentUser = '@User.Identity.Name';
+
+            chat.client.receiveMessage = function (user, message) {
+                console.log("Received message from " + user + ": " + message);
+                var messageClass = user === currentUser ? 'message-self' : 'message-other';
+                var messageHtml = '<div class="message ' + messageClass + '">' +
+                                  '<div class="message-user">' + $('<div/>').text(user).html() + '</div>' +
+                                  '<div class="message-content">' + $('<div/>').text(message).html() + '</div>' +
+                                  '</div>';
+                $('#chatbox').append(messageHtml);
+                $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
+            };
+
+            function sendMessage() {
+                var message = $('#message').val();
+                if (message) {
+                    console.log("Attempting to send message: " + message);
+                    chat.server.sendMessage(currentUser, message)
+                        .done(function () {
+                            console.log("Message sent successfully");
+                            $('#message').val('').focus();
+                        })
+                        .fail(function (error) {
+                            console.error("Failed to send message: " + error);
+                        });
+                }
+            }
+
+            $.connection.hub.start()
+                .done(function () {
+                    console.log("Connected, connection ID=" + $.connection.hub.id);
+                    $('#sendmessage').prop('disabled', false);
+                })
+                .fail(function (error) {
+                    console.error("Failed to connect: " + error);
+                });
+
+            $('#sendmessage').click(sendMessage);
+            $('#message').keypress(function (e) {
+                if (e.which == 13) {  // Enter key
+                    sendMessage();
+                    return false;
+                }
+            });
+
+            $.connection.hub.error(function (error) {
+                console.error('SignalR error: ' + error);
+            });
+
+            $.connection.hub.reconnecting(function () {
+                console.log('SignalR reconnecting...');
+            });
+
+            $.connection.hub.reconnected(function () {
+                console.log('SignalR reconnected');
+            });
+
+            $.connection.hub.disconnected(function () {
+                console.log('SignalR disconnected');
+                $('#sendmessage').prop('disabled', true);
+                setTimeout(function () {
+                    $.connection.hub.start()
+                        .done(function() {
+                            console.log('SignalR reconnected after disconnect');
+                            $('#sendmessage').prop('disabled', false);
+                        });
+                }, 5000); // Restart connection after 5 seconds
+            });
+        });
+    </script>
+}

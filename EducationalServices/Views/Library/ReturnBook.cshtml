@@ -1,0 +1,35 @@
+﻿@using EducationalServices.Models
+@model EducationalServices.Models.BookInspectionViewModel
+
+<h1>Return Book</h1>
+
+<div class="row">
+    <div class="col-sm-12 col-md-6">
+        <form action="@Url.Action("ReturnBook", "Library")" method="post" class="d-inline">
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(t => t.UserId)
+            @Html.HiddenFor(t => t.BookId)
+            @Html.HiddenFor(t => t.BorrowId)
+
+            <div class="form-group">
+                <label for="Status">Status</label>
+                @Html.EnumDropDownListFor(t => t.Status, "Select Book Condition")
+                @Html.ValidationMessageFor(t => t.Status)
+            </div>
+            <br />
+            <div class="form-group">
+                <label for="Notes">Notes</label>
+                @Html.EditorFor(t => t.Notes, new { @class = "form-control" })
+                @Html.ValidationMessageFor(t => t.Notes)
+            </div>
+
+            
+
+            <br />
+
+            <div class="form-group">
+                <input type="submit" />
+            </div>
+        </form>
+    </div>
+</div>

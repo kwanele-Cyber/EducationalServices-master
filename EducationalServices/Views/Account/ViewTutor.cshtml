@@ -1,0 +1,28 @@
+﻿@{
+    ViewBag.Title = "ViewTutor";
+}
+
+<h1>List of Tutors</h1>
+
+<table class="col-12">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Username</th>
+        </tr>
+      
+    </thead>
+    <tbody>
+        @foreach (var tutor in Model)
+        {
+            <tr>
+                <td>@tutor.FirstName</td>
+                <td>@tutor.LastName</td>
+                <td>@tutor.Email</td>
+                <td>@tutor.UserName</td>
+            </tr>
+        }
+    </tbody>
+</table>

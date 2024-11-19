@@ -1,0 +1,79 @@
+﻿@using EducationalServices.Models
+@model LoginViewModel
+@{
+    ViewBag.Title = "Login";
+}
+
+<style>
+    /* Same styles as the register form */
+    .custom-card {
+        background-color: #f8f9fa; /* Off-white color */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow */
+    }
+</style>
+
+<main aria-labelledby="title">
+    <div class="row justify-content-center align-items-center">
+        <!-- Center vertically -->
+        <div class="col-md-6">
+            <div class="card custom-card">
+                <!-- Add custom-card class here -->
+                <div class="card-body">
+                    <h2 id="title" class="text-center"<span style="color: #06BBCC">@ViewBag.Title</span></h2> <!-- Center title -->
+                    <hr />
+                    @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { role = "form" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                        <br />
+                        <div class="form-group row">
+                            @Html.LabelFor(m => m.Email, new { @class = "col-md-3 col-form-label text-right" })
+                            <div class="col-md-9 mx-auto">
+                                <!-- Center text box -->
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Email" }) <!-- Placeholder added -->
+                                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <br />
+                        <div class="form-group row">
+                            @Html.LabelFor(m => m.Password, new { @class = "col-md-3 col-form-label text-right" })
+                            <div class="col-md-9 mx-auto">
+                                <!-- Center text box -->
+                                @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Password" }) <!-- Placeholder added -->
+                                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <br />
+                        <div class="form-group row">
+                            <div class="offset-md-3 col-md-9">
+                                <div class="checkbox">
+                                    @Html.CheckBoxFor(m => m.RememberMe)
+                                    @Html.LabelFor(m => m.RememberMe)
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="form-group row justify-content-center">
+                            <!-- Center login button -->
+                            <div class="col-md-9 text-center">
+                                <input type="submit" value="Login" class="btn btn-outline-dark" />
+                            </div>
+                        </div>
+                        <br />
+                        <p class="text-center">
+                            @Html.ActionLink("Register as a new user", "Register") <!-- Centered link -->
+                        </p>
+                        <!-- Enable this once you have account confirmation enabled for password reset functionality -->
+                        <!-- <p>
+                            @Html.ActionLink("Forgot your password?", "ForgotPassword")
+                        </p> -->
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

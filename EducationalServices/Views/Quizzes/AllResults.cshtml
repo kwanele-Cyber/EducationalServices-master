@@ -1,0 +1,68 @@
+﻿@model IEnumerable<EducationalServices.Models.QuizResultSummary>
+@{
+    ViewBag.Title = "All Quiz Results";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">All Quiz Results</h2>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>Quiz Title</th>
+                    <th>Module</th>
+                    <th>Total Attempts</th>
+                    <th>Completed Attempts</th>
+                    <th>Average Score</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var summary in Model)
+                {
+                    <tr>
+                        <td>@summary.Quiz.Title</td>
+                        <td>@summary.Quiz.Module.Subject</td>
+                        <td>@summary.TotalAttempts</td>
+                        <td>@summary.CompletedAttempts</td>
+                        <td>@(summary.AverageScore.HasValue ? summary.AverageScore.Value.ToString("F2") : "N/A")</td>
+                        <td>
+                            <a href="@Url.Action("Results", new { quizId = summary.Quiz.QuizId })" class="btn btn-sm btn-info">View Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+    }
+
+    h2 {
+        color: #333;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f1f3f5;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+
+        .btn-info:hover {
+            background-color: #138496;
+            border-color: #117a8b;
+        }
+</style>

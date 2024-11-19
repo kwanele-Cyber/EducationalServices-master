@@ -1,0 +1,39 @@
+﻿@model IEnumerable<EducationalServices.Models.Feedback>
+
+@{
+    ViewBag.Title = "My Feedback";
+}
+
+<h2>My Feedback</h2>
+
+@if (Model.Any())
+{
+    <table class="table">
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Type)</th>
+            <th>@Html.DisplayNameFor(model => model.Message)</th>
+            <th>@Html.DisplayNameFor(model => model.DateSubmitted)</th>
+            <th>@Html.DisplayNameFor(model => model.IsResolved)</th>
+            <th>Admin Response</th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Type)</td>
+                <td>@Html.DisplayFor(modelItem => item.Message)</td>
+                <td>@Html.DisplayFor(modelItem => item.DateSubmitted)</td>
+                <td>@Html.DisplayFor(modelItem => item.IsResolved)</td>
+                <td>@Html.DisplayFor(modelItem => item.AdminResponse)</td>
+            </tr>
+        }
+    </table>
+}
+else
+{
+    <p>You haven't submitted any feedback yet.</p>
+}
+
+<p>
+    @Html.ActionLink("Submit New Feedback", "Index", null, new { @class = "btn btn-primary" })
+</p>

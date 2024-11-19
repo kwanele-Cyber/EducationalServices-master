@@ -1,0 +1,144 @@
+﻿@model EducationalServices.Models.Card
+@{
+    ViewBag.Title = "Payment";
+    EducationalServices.Models.ApplicationDbContext db = new EducationalServices.Models.ApplicationDbContext();
+    var cart = Session["cart"] as List<EducationalServices.Models.Cart> ?? new List<EducationalServices.Models.Cart>();
+    decimal Total = 0;
+    decimal SubTotal = 0;
+    foreach (var item in cart)
+    {
+        SubTotal += (item.StockQuantity * item.Price);
+    }
+    Total = (SubTotal * 15 / 100) + SubTotal;
+}
+
+<h2>Payment</h2>
+@if (Model != null)
+{
+
+    <h3>Selected Card</h3>
+    <form method="post" action="~/Products/MakePayment">
+        <div class="card bg-primary text-white rounded-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="mb-0">Card details</h5>
+                </div>
+                <div class="mt-4">
+                    <div data-mdb-input-init class="form-outline form-white mb-4">
+                        <label class="form-label" for="typeName">Cardholder's Name</label>
+                        <input value="@Model.Name" type="text" id="typeName" class="form-control form-control-lg" size="17" placeholder="Cardholder's Name" required />
+                    </div>
+
+                    <div data-mdb-input-init class="form-outline form-white mb-4">
+                        <label class="form-label" for="typeText">Card Number</label>
+                        <input value="@Model.Number" type="text" id="typeText" class="form-control form-control-lg" size="16" placeholder="1234 1234 1234 1234" minlength="16" maxlength="16" required />
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div data-mdb-input-init class="form-outline form-white">
+                                <label class="form-label" for="typeExp">Expiration</label>
+                                <input value="@Model.ExpirationDate" type="text" id="typeExp exp" class="form-control form-control-lg" placeholder="MM/YYYY" size="7" minlength="7" maxlength="7" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div data-mdb-input-init class="form-outline form-white">
+                                <label class="form-label" for="typeText">Cvv</label>
+                                <input type="password" id="typeText" class="form-control form-control-lg" size="1" minlength="3" maxlength="3" required />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-between">
+                    <p class="mb-2">Subtotal</p>
+                    <p class="mb-2">@SubTotal.ToString("R0.00")</p>
+                </div>
+
+                <div class="d-flex justify-content-between mb-4">
+                    <p class="mb-2">Total(Incl. taxes)</p>
+                    <p class="mb-2">@Total.ToString("R0.00")</p>
+                </div>
+
+                <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-info btn-block btn-lg">
+                    <div class="d-flex justify-content-between">
+                        <span>@Total.ToString("R0.00")</span>
+                        <span>Make Payment <i class="fas fa-long-arrow-alt-right ms-2"></i></span>
+                    </div>
+                </button>
+                <br />
+                <button onclick="submitForm()" class="btn btn-danger btn-block btn-lg mt-3" type="button">Cancel Order</button>
+            </div>
+        </div>
+    </form>
+
+}
+else
+{
+
+    <h3>Once Off</h3>
+    <form method="post" action="~/Products/MakePayment">
+        <div class="card bg-primary text-white rounded-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="mb-0">Card details</h5>
+                </div>
+                <div class="mt-4">
+                    <div data-mdb-input-init class="form-outline form-white mb-4">
+                        <label class="form-label" for="typeName">Cardholder's Name</label>
+                        <input type="text" id="typeName" class="form-control form-control-lg" size="17" placeholder="Cardholder's Name" value="" required />
+                    </div>
+
+                    <div data-mdb-input-init class="form-outline form-white mb-4">
+                        <label class="form-label" for="typeText">Card Number</label>
+                        <input type="text" id="typeText" class="form-control form-control-lg" size="16" placeholder="1234 5678 9012 3457" minlength="16" maxlength="16" required />
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div data-mdb-input-init class="form-outline form-white">
+                                <label class="form-label" for="typeExp">Expiration</label>
+                                <input type="text" id="typeExp exp" class="form-control form-control-lg" placeholder="MM/YYYY" size="7" minlength="7" maxlength="7" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div data-mdb-input-init class="form-outline form-white">
+                                <label class="form-label" for="typeText">Cvv</label>
+                                <input type="password" id="typeText" class="form-control form-control-lg" placeholder="&#9679;&#9679;&#9679;" size="1" minlength="3" maxlength="3" required />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-between">
+                    <p class="mb-2">Subtotal</p>
+                    <p class="mb-2">@SubTotal.ToString("R0.00")</p>
+                </div>
+
+                <div class="d-flex justify-content-between mb-4">
+                    <p class="mb-2">Total(Incl. taxes)</p>
+                    <p class="mb-2">@Total.ToString("R0.00")</p>
+                </div>
+
+                <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-info btn-block btn-lg">
+                    <div class="d-flex justify-content-between">
+                        <span>@Total.ToString("R0.00")</span>
+                        <span>Make Payment <i class="fas fa-long-arrow-alt-right ms-2"></i></span>
+                    </div>
+                </button>
+                <br />
+                <button onclick="submitForm()" class="btn btn-danger btn-block btn-lg mt-3" type="button">Cancel Order</button>
+            </div>
+        </div>
+    </form>
+}
+<form id="CancelForm" method="post" action="~/Products/CancelOrder"></form>
+<script>
+    function submitForm() {
+        document.getElementById("CancelForm").submit();
+    }
+</script>

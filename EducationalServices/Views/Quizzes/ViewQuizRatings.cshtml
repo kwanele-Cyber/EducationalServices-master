@@ -1,0 +1,25 @@
+﻿@model EducationalServices.Models.QuizRatingsViewModel
+
+<h2>Ratings for Quiz: @Model.Quiz.Title</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Rating</th>
+            <th>Comment</th>
+            <th>Date Rated</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var rating in Model.Ratings)
+        {
+            <tr>
+                <td>@rating.Student.UserName</td>
+                <td>@rating.Rating / 5</td>
+                <td>@rating.Comment</td>
+                <td>@rating.DateRated.ToString("g")</td>
+            </tr>
+        }
+    </tbody>
+</table>

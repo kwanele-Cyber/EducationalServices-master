@@ -1,0 +1,25 @@
+﻿@model IEnumerable<EducationalServices.Models.SupportRequest>
+<h2>Support Requests</h2>
+
+<table class="table">
+    <tr>
+        <th>Student</th>
+        <th>Issue</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Student.UserName</td>
+            <td>@item.Issue</td>
+            <td>@item.Status</td>
+            <td>
+                @if (item.Status != "Resolved")
+                {
+                    @Html.ActionLink("Resolve", "Resolve", new { id = item.Id })
+                }
+            </td>
+        </tr>
+    }
+</table>

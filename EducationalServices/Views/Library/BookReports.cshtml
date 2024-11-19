@@ -1,0 +1,195 @@
+﻿@model IEnumerable<EducationalServices.Models.BookIssueReport>
+@{
+    ViewBag.Title = "Book Issue Reports";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Book Issue Reports</h2>
+        <div class="btn-group">
+            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                Filter Status
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="@Url.Action("BookReports", new { status = "" })">All</a></li>
+                <li><a class="dropdown-item" href="@Url.Action("BookReports", new { status = "Pending" })">Pending</a></li>
+                <li><a class="dropdown-item" href="@Url.Action("BookReports", new { status = "Under Review" })">Under Review</a></li>
+                <li><a class="dropdown-item" href="@Url.Action("BookReports", new { status = "Resolved" })">Resolved</a></li>
+            </ul>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>No book issue reports found.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover border">
+                <thead class="table-light">
+                    <tr>
+                        <th>Report Date</th>
+                        <th>Book Details</th>
+                        <th>Reported By</th>
+                        <th>Issue Type</th>
+                        <th>Status</th>
+                        <th>Assessed Fee</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var report in Model)
+                    {
+                        string statusClass = "";
+                        if (report.Status == "Pending") { statusClass = "table-warning"; }
+                        else if (report.Status == "Resolved") { statusClass = "table-success"; }
+
+                        <tr class="@statusClass">
+                            <td class="align-middle">@report.ReportDate.ToString("MMM dd, yyyy")</td>
+                            <td class="align-middle">
+                                <h6 class="mb-1">@report.Book.Title</h6>
+                                <small class="text-muted">@report.Book.Author</small>
+                            </td>
+                            <td class="align-middle">
+                                @report.User.UserName
+                                <br />
+                                <small class="text-muted">@report.User.Email</small>
+                            </td>
+                            <td class="align-middle">
+                                <span class="badge bg-danger">@report.IssueType</span>
+                            </td>
+                            <td class="align-middle">
+                                @{
+                                    string badgeClass = "bg-warning text-dark";
+                                    if (report.Status == "Under Review") { badgeClass = "bg-info"; }
+                                    else if (report.Status == "Resolved") { badgeClass = "bg-success"; }
+                                }
+                                <span class="badge @badgeClass">@report.Status</span>
+                            </td>
+                            <td class="align-middle">
+                                @(report.AssessedFee.HasValue ? report.AssessedFee.Value.ToString("C2") : "Not Assessed")
+                            </td>
+                            <td class="align-middle">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-info btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#detailsModal_@report.ReportId">
+                                        <i class="fas fa-eye me-1"></i>Details
+                                    </button>
+                                    @if (report.Status != "Resolved")
+                                    {
+                                        <button type="button" class="btn btn-primary btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#updateModal_@report.ReportId">
+                                            <i class="fas fa-edit me-1"></i>Update
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@foreach (var report in Model)
+{
+    <!-- Details Modal -->
+    <div class="modal fade" id="detailsModal_@report.ReportId" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Report Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <h6>Description</h6>
+                        <p>@report.Description</p>
+                    </div>
+                    @if (!string.IsNullOrEmpty(report.AdminComments))
+                    {
+                        <div class="mb-3">
+                            <h6>Admin Comments</h6>
+                            <p>@report.AdminComments</p>
+                        </div>
+                    }
+                    @if (report.ResolutionDate.HasValue)
+                    {
+                        <div>
+                            <h6>Resolution Date</h6>
+                            <p>@report.ResolutionDate.Value.ToString("MMM dd, yyyy")</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Modal -->
+    if (report.Status != "Resolved")
+    {
+        <div class="modal fade" id="updateModal_@report.ReportId" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="@Url.Action("UpdateBookReport", "Library")" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="reportId" value="@report.ReportId" />
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">Update Report Status</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <select name="status" class="form-select" required>
+                                    <option value="Pending" @(report.Status == "Pending" ? "selected" : "")>Pending</option>
+                                    <option value="Under Review" @(report.Status == "Under Review" ? "selected" : "")>Under Review</option>
+                                    <option value="Resolved" @(report.Status == "Resolved" ? "selected" : "")>Resolved</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Assessed Fee (if applicable)</label>
+                                <input type="number" name="assessedFee" class="form-control"
+                                       step="0.01" min="0"
+                                       value="@(report.AssessedFee?.ToString("F2") ?? "")" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Admin Comments</label>
+                                <textarea name="adminComments" class="form-control" rows="3">@report.AdminComments</textarea>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        });
+    </script>
+}

@@ -1,0 +1,22 @@
+﻿@model EducationalServices.Models.DigitalResource
+
+<h2>@Model.Title</h2>
+
+<dl class="dl-horizontal">
+    <dt>Author</dt>
+    <dd>@Model.Author</dd>
+
+    <dt>Type</dt>
+    <dd>@Model.Type</dd>
+
+    <dt>Description</dt>
+    <dd>@Model.Description</dd>
+
+    <dt>Date Added</dt>
+    <dd>@Model.DateAdded.ToShortDateString()</dd>
+</dl>
+
+<p>
+    @Html.ActionLink("Access Resource", "AccessDigitalResource", new { id = Model.Id }, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Back to List", "DigitalResources", null, new { @class = "btn btn-default" })
+</p>

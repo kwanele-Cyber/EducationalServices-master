@@ -1,0 +1,45 @@
+﻿@model EducationalServices.Models.QuizAttemptDetailsViewModel
+
+<h2>Grade Quiz: @Model.QuizTitle</h2>
+<h3>Student: @Model.StudentName</h3>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.AttemptId)
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Question</th>
+                <th>Student Answer</th>
+                <th>Correct Answer</th>
+                <th>Marks</th>
+                <th>Marks Obtained</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Answers.Count; i++)
+            {
+                <tr>
+                    <td>@Model.Answers[i].QuestionText</td>
+                    <td>@Model.Answers[i].StudentAnswer</td>
+                    <td>@Model.Answers[i].CorrectAnswer</td>
+                    <td>@Model.Answers[i].Marks</td>
+                    <td>
+                        @Html.HiddenFor(m => m.Answers[i].AnswerId)
+                        @Html.EditorFor(m => m.Answers[i].MarksObtained, new { htmlAttributes = new { @class = "form-control" } })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="form-group">
+        <input type="submit" value="Submit Grades" class="btn btn-primary" />
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to Attempt Details", "AttemptDetails", new { id = Model.AttemptId })
+</div>

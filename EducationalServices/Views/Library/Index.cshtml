@@ -1,0 +1,87 @@
+﻿@model IEnumerable<EducationalServices.Models.BookViewModel>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        @using (Html.BeginForm("SearchBooks", "Library", FormMethod.Get, new { @class = "form-inline" }))
+        {
+            <div class="input-group">
+                <input type="text" name="query" class="form-control" placeholder="Search by title or author..." />
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                    <a href="@Url.Action("Index")" class="btn btn-secondary">Reset</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@{
+    ViewBag.Title = "Library Books";
+}
+
+<h2>Library Books</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Cover</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Availability</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var book in Model)
+        {
+            <tr>
+                <td>
+                    @if (!string.IsNullOrEmpty(book.ImagePath))
+                    {
+                        <img src="~/Content/img/@book.ImagePath" alt="@book.Title Cover"
+                            style="max-width: 100px; max-height: 150px;" />
+                    }
+                    else
+                    {
+                        <span>No image available</span>
+                    }
+                </td>
+                <td>@book.Title</td>
+                <td>@book.Author</td>
+                <td>@book.Status.ToString()</td>
+                <td>
+                    @*@if (book.IsAvailable)
+        {
+            <a href="@Url.Action("BorrowBook", "Library", new { bookId = book.BookId })"
+                class="btn btn-primary">Borrow</a>
+        } *@
+                    @if (book.Status == EducationalServices.Models.BookStatus.AVAILABLE && !User.IsInRole("Admin"))
+                    {
+                        <a href="@Url.Action("ReserveBook", "Library", new { id = book.BookId })"
+                           class="btn btn-warning">Reserve Book</a>
+                    }
+                    else if (book.Status == EducationalServices.Models.BookStatus.UNDER_MAINTENANCE && User.IsInRole("Admin"))
+                    {
+                        <a href="@Url.Action("MarkAsAvailable", "Library", new { bookId = book.BookId })" class="btn btn-outline-danger">Mark As Available</a>
+                    }else
+                    {
+                    <span class="btn btn-dark">@book.Status.ToString()</span>
+                    }
+                    <a href="@Url.Action("ViewBookDetails", "Library", new { bookId = book.BookId })"
+                       class="btn btn-info">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

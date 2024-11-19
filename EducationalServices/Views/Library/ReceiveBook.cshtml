@@ -1,0 +1,27 @@
+﻿@model EducationalServices.Models.BookOrder
+
+<h2>Receive Book Order</h2>
+
+<p>
+    <strong>Order ID:</strong> @Model.BookOrderId <!-- Updated to use BookOrderId instead of OrderId -->
+</p>
+
+<p>
+    <strong>Title:</strong> @Model.Title
+</p>
+
+<p>
+    <strong>Author:</strong> @Model.Author
+</p>
+
+<p>
+    <strong>Price:</strong> @Model.Price
+</p>
+
+<p>
+    <strong>Order Date:</strong> @Model.OrderDate
+</p>
+
+<p>
+    <strong>Status:</strong> @(Model.IsFulfilled ? "Fulfilled" : "Pending") <!-- Display fulfillment status -->
+</p>

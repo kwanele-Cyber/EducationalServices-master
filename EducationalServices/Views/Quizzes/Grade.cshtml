@@ -1,0 +1,49 @@
+﻿@model EducationalServices.Models.QuizAttemptDetailsViewModel
+
+@{
+    ViewBag.Title = "Grade Quiz Attempt";
+}
+
+<h2>Grade Quiz Attempt</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.AttemptId)
+
+    <h3>Answers</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Question</th>
+                <th>Student's Answer</th>
+                <th>Correct Answer</th>
+                <th>Marks</th>
+                <th>Grade</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Answers.Count; i++)
+            {
+                <tr>
+                    <td>
+                        @Model.Answers[i].QuestionText
+                        @Html.HiddenFor(m => m.Answers[i].AnswerId)
+                    </td>
+                    <td>@Model.Answers[i].StudentAnswer</td>
+                    <td>@Model.Answers[i].CorrectAnswer</td>
+                    <td>@Model.Answers[i].Marks</td>
+                    <td>
+                        @Html.TextBoxFor(m => m.Answers[i].MarksObtained, new { @class = "form-control", type = "number", min = "0", max = Model.Answers[i].Marks })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <input type="submit" value="Submit Grades" class="btn btn-primary" />
+}
+
+<div>
+    @Html.ActionLink("Back to Attempt Details", "AttemptDetails", new { id = Model.AttemptId })
+</div>

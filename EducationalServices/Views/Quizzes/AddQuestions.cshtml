@@ -1,0 +1,115 @@
+﻿@model EducationalServices.Models.Quiz
+@{
+    ViewBag.Title = "Add Questions";
+}
+<h2>Add Questions to @Model.Title</h2>
+
+@using (Html.BeginForm("AddQuestions", "Quizzes", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.QuizId)
+
+    <div id="questions-container">
+        <!-- Questions will be dynamically added here -->
+    </div>
+    <div class="form-group">
+        <input type="button" value="Add Question" id="add-question" class="btn btn-default" />
+        <input type="submit" value="Save Questions" class="btn btn-primary" />
+    </div>
+}
+
+<div id="question-template" style="display:none;">
+    <div class="question">
+        <h3 class="question-number">Question <span></span></h3>
+        <div class="form-group">
+            <label>Question:</label>
+            <input type="text" name="questions[INDEX].Text" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label>Question Type:</label>
+            <select name="questions[INDEX].QuestionType" class="form-control question-type-select" required>
+                <option value="">Select a question type</option>
+                <option value="MultipleChoice">Multiple Choice</option>
+                <option value="TrueFalse">True/False</option>
+                <option value="FillInTheBlank">Fill in the Blank</option>
+                <option value="ShortAnswer">Short Answer</option>
+                <option value="Essay">Essay</option>
+                <option value="Matching">Matching</option>
+                <option value="Ranking">Ranking</option>
+                <option value="MultipleAnswers">Multiple Answers</option>
+            </select>
+        </div>
+        <div class="form-group correct-answer-group">
+            <label>Correct Answer:</label>
+            <input type="text" name="questions[INDEX].CorrectAnswer" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>Marks:</label>
+            <input type="number" name="questions[INDEX].Marks" class="form-control" required />
+        </div>
+        <div class="form-group options-group" style="display:none;">
+            <label>Options (comma-separated):</label>
+            <input type="text" name="questions[INDEX].Options" class="form-control" />
+        </div>
+        <hr />
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script type="text/javascript">
+        var questionCount = 0;
+
+        function addQuestion() {
+            var template = $("#question-template").html().replace(/INDEX/g, questionCount);
+            var $newQuestion = $(template);
+            $newQuestion.find(".question-number span").text(questionCount + 1);
+            $("#questions-container").append($newQuestion);
+            questionCount++;
+
+            // Add event listener to the new question type select
+            $newQuestion.find(".question-type-select").on("change", handleQuestionTypeChange);
+        }
+
+        function handleQuestionTypeChange() {
+            var selectedType = $(this).val();
+            var questionDiv = $(this).closest(".question");
+            var correctAnswerGroup = questionDiv.find(".correct-answer-group");
+            var optionsGroup = questionDiv.find(".options-group");
+
+            // Reset visibility
+            correctAnswerGroup.show();
+            optionsGroup.hide();
+
+            switch (selectedType) {
+                case "MultipleChoice":
+                case "MultipleAnswers":
+                    optionsGroup.show();
+                    optionsGroup.find("input").attr("required", "required");
+                    break;
+                case "TrueFalse":
+                    correctAnswerGroup.find("input").attr("placeholder", "Enter True or False");
+                    break;
+                case "Matching":
+                case "Ranking":
+                    optionsGroup.show();
+                    optionsGroup.find("label").text("Items (comma-separated):");
+                    optionsGroup.find("input").attr("required", "required");
+                    break;
+                case "Essay":
+                    correctAnswerGroup.hide();
+                    break;
+                // For FillInTheBlank, ShortAnswer - default behavior (only show correct answer)
+            }
+        }
+
+        $("#add-question").click(function () {
+            addQuestion();
+        });
+
+        $(document).ready(function () {
+            addQuestion(); // Add the first question
+            $(document).on("change", ".question-type-select", handleQuestionTypeChange);
+        });
+    </script>
+}

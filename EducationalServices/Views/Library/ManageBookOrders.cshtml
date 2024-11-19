@@ -1,0 +1,41 @@
+﻿@model IEnumerable<EducationalServices.Models.BookOrder>
+
+@{
+    ViewBag.Title = "ManageBookOrders";
+}
+
+
+
+
+
+<h2>Manage Book Orders</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Price</th>
+            <th>Order Date</th>
+            <th>Fulfilled</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.Title</td>
+                <td>@order.Author</td>
+                <td>@order.Price</td>
+                <td>@order.OrderDate.ToString("dd/MM/yyyy")</td>
+                <td>@(order.IsFulfilled ? "Yes" : "No")</td>
+                <td>
+                    @if (!order.IsFulfilled)
+                    {
+                        <a href="@Url.Action("FulfillOrder", "Library", new { orderId = order.BookOrderId })" class="btn btn-success">Fulfill</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

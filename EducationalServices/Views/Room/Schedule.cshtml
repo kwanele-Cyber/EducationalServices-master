@@ -1,0 +1,164 @@
+﻿@model IEnumerable<EducationalServices.Models.RoomBooking>
+@{
+    ViewBag.Title = "Room Schedule";
+    var room = ViewBag.Room as EducationalServices.Models.Room;
+    var currentDate = ViewBag.CurrentDate as DateTime? ?? DateTime.Today;
+    var weekStart = currentDate.AddDays(-(int)currentDate.DayOfWeek);
+    var isCurrentlyAvailable = ViewBag.IsCurrentlyAvailable;
+}
+
+<h2>Schedule for @room.RoomName</h2>
+
+<div class="alert @(isCurrentlyAvailable ? "alert-success" : "alert-danger")">
+    <strong>Current Status:</strong>
+    @if (isCurrentlyAvailable)
+    {
+        <span>Available</span>
+    }
+    else
+    {
+        <span>Booked</span>
+    }
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>Upcoming Bookings</h3>
+        @if (Model.Any())
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Booked By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var booking in Model)
+                    {
+                        <tr>
+                            <td>@booking.StartTime.ToShortDateString()</td>
+                            <td>@booking.StartTime.ToShortTimeString()</td>
+                            <td>@booking.EndTime.ToShortTimeString()</td>
+                            <td>@booking.User.UserName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>No upcoming bookings for this room.</p>
+        }
+    </div>
+    <div class="col-md-6">
+        <h3>Book This Room</h3>
+        @using (Html.BeginForm("Book", "Room", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.Hidden("RoomId", room.RoomId)
+            <div class="form-group">
+                <label for="BookingDate">Date:</label>
+                <input type="date" id="BookingDate" name="BookingDate" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label for="StartTime">Start Time:</label>
+                <input type="time" id="StartTime" name="StartTime" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label for="EndTime">End Time:</label>
+                <input type="time" id="EndTime" name="EndTime" class="form-control" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Book Room</button>
+        }
+    </div>
+</div>
+
+<h3>Weekly Schedule</h3>
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    @for (int i = 0; i < 7; i++)
+                    {
+                        var day = weekStart.AddDays(i);
+                        <th>@day.ToString("ddd MM/dd")</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @for (int hour = 8; hour < 22; hour++)
+                {
+                    <tr>
+                        <td>@hour:00</td>
+                        @for (int i = 0; i < 7; i++)
+                        {
+                            var day = weekStart.AddDays(i);
+                            var timeSlot = day.AddHours(hour);
+                            var booking = Model.FirstOrDefault(b => b.StartTime <= timeSlot && b.EndTime > timeSlot);
+                            if (booking != null)
+                            {
+                                <td class="bg-danger" title="Booked by @booking.User.UserName">
+                                    Booked<br />
+                                    <small>@booking.StartTime.ToString("HH:mm") - @booking.EndTime.ToString("HH:mm")</small>
+                                </td>
+                            }
+                            else
+                            {
+                                <td class="bg-success">Available</td>
+                            }
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div>
+    @Html.ActionLink("Back to Room List", "Index", null, new { @class = "btn btn-default" })
+</div>
+
+<style>
+    .table-bordered td {
+        height: 50px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .bg-info {
+        position: relative;
+    }
+
+        .bg-info::after {
+            content: 'Now';
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #17a2b8;
+            color: white;
+            padding: 2px 5px;
+            font-size: 0.8em;
+        }
+</style>
+
+@section Scripts {
+    <script>
+        $(function () {
+            // Highlight current time slot
+            var now = new Date();
+            var currentDay = now.getDay();
+            var currentHour = now.getHours();
+
+            if (currentHour >= 8 && currentHour < 22) {
+                $('table.table-bordered tr').eq(currentHour - 7).find('td').eq(currentDay + 1).addClass('bg-info');
+            }
+
+            // Add any JavaScript for date/time picker enhancements here
+        });
+    </script>
+}

@@ -1,0 +1,97 @@
+﻿@model EducationalServices.Models.QuizAttemptDetailsViewModel
+
+@{
+    ViewBag.Title = "Attempt Details";
+}
+
+<h2>Attempt Details</h2>
+
+<div>
+    <h4>Quiz: @Model.QuizTitle</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>Student:</dt>
+        <dd>@Model.StudentName</dd>
+
+        <dt>Start Time:</dt>
+        <dd>@Model.StartTime.ToString("g")</dd>
+
+        <dt>End Time:</dt>
+        <dd>@(Model.EndTime.HasValue ? Model.EndTime.Value.ToString("g") : "Not completed")</dd>
+
+        <dt>Score:</dt>
+        <dd>@Model.Score / @Model.TotalMarks (@Model.ScorePercentage.ToString("F2")%)</dd>
+
+        <dt>Status:</dt>
+        <dd>@(Model.IsCompleted ? "Completed" : "In Progress")</dd>
+    </dl>
+</div>
+
+@using (Html.BeginForm("Grade", "Quizzes", new { id = Model.AttemptId }, FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.AttemptId)
+
+    <h3>Answers</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Question</th>
+                <th>Student's Answer</th>
+                <th>Correct Answer</th>
+                <th>Result</th>
+                <th>Marks</th>
+                @if (ViewBag.IsAdminOrTutor)
+                {
+                    <th>Grade</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Answers.Count; i++)
+            {
+                <tr>
+                    <td>
+                        @Model.Answers[i].QuestionText
+                        @Html.HiddenFor(m => m.Answers[i].AnswerId)
+                    </td>
+                    <td>@Model.Answers[i].StudentAnswer</td>
+                    <td>@Model.Answers[i].CorrectAnswer</td>
+                    <td>
+                        @if (Model.Answers[i].IsCorrect)
+                        {
+                            <span class="text-success">Correct</span>
+                        }
+                        else
+                        {
+                            <span class="text-danger">Incorrect</span>
+                        }
+                    </td>
+                    <td>@Model.Answers[i].MarksObtained / @Model.Answers[i].Marks</td>
+                    @if (ViewBag.IsAdminOrTutor)
+                    {
+                        <td>
+                            @Html.TextBoxFor(m => m.Answers[i].MarksObtained, new { @class = "form-control", type = "number", min = "0", max = Model.Answers[i].Marks })
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    if (ViewBag.IsAdminOrTutor)
+    {
+        <input type="submit" value="Submit Grades" class="btn btn-primary" />
+    }
+}
+
+<p>
+    @if (ViewBag.IsAdminOrTutor)
+    {
+        @Html.ActionLink("Back to All Results", "AllResults", null, new { @class = "btn btn-default" })
+    }
+    else
+    {
+        @Html.ActionLink("Back to My Results", "Results", new { quizId = Model.QuizId }, new { @class = "btn btn-default" })
+    }
+</p>

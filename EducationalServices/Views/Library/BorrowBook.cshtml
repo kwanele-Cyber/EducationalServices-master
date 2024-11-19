@@ -1,0 +1,124 @@
+﻿@model EducationalServices.Models.BorrowViewModel
+
+@{
+    ViewBag.Title = "Borrow Book";
+}
+
+@if (!User.IsInRole("Admin"))
+{
+    <div class="row">
+        <div class="col"></div>
+        <div class="col-8 justify-content-center align-items-center">
+            <h2 class="justify-content-center align-items-center">Borrow Book: @Model.BookTitle</h2>
+            <p class="justify-content-center align-items-center"><strong>Go to you receptionist and scan this QRCode to Fetch Your book</strong></p>
+        </div>
+        <div class="col"></div>
+    </div>
+    <div class="row">
+        <div class="col"></div>
+        <img src="@Model.QRCode" class="col-8" />
+        <div class="col"></div>
+    </div>
+
+}
+else
+{
+
+    @*Resert the QRCode*@
+    Model.QRCode = "...";
+
+    <h2>Lend Out Book: @Model.BookTitle</h2>
+
+    using (Html.BeginForm("BorrowBook", "Library", FormMethod.Post, new { @id = "code-form" }))
+    {
+
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.BookId)
+        @Html.HiddenFor(m => m.UserId)
+        @Html.HiddenFor(m => m.BookTitle)
+        @Html.HiddenFor(t => t.ScannedCode, new { @id = "code-input" })
+        @Html.HiddenFor(m => m.QRCode)
+
+
+        <div class="row">
+            <div class="col-sm-12 col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.ExpectedReturnDate)
+                    @Html.EditorFor(m => m.ExpectedReturnDate, new { htmlAttributes = new { @class = "form-control", @type = "date" } })
+                    @Html.ValidationMessageFor(m => m.ExpectedReturnDate)
+                </div>
+
+                <div class="form-group">
+                    <p id="returnCounter"></p>
+                </div>
+            </div>
+
+            <div class="col-sm-12 col-md-6">
+                <div class="container">
+                    <h3>Scan QR Codes</h3>
+                    <div class="section">
+                        <div id="qr-code-scanner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <button type="submit" id="submit-btn" class="btn btn-primary">Borrow</button>
+    }
+
+}
+@section Scripts {
+
+    <script src="~/Scripts/html5-qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        function updateCounter() {
+            var returnDate = new Date($('#ExpectedReturnDate').val());
+            var now = new Date();
+            var diff = returnDate - now;
+            var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            $('#returnCounter').text('Days until expected return: ' + days);
+        }
+
+        $(document).ready(function () {
+            updateCounter();
+            $('#ExpectedReturnDate').change(updateCounter);
+            setInterval(updateCounter, 1000 * 60 * 60); // Update every hour
+        });
+
+    </script>
+
+
+    <script>
+
+        function sendCodeToServer(code) {
+            var codeToSend = code;
+            document.getElementById('code-input').value = codeToSend;
+            document.getElementById('code-form').submit();
+        }
+
+        const html5QrCodeScanner = new Html5QrcodeScanner("qr-code-scanner", {
+            formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+            fps: 10,
+            qrbox: 250
+        });
+
+        html5QrCodeScanner.render(onScanSuccess, onScanFailure);
+
+
+
+        function onScanSuccess(qrCodeMessage) {
+
+
+            sendCodeToServer(qrCodeMessage);
+            html5QrCodeScanner.clear();
+        }
+
+        function onScanFailure(error) {
+            console.error("QR code scanning failed:", error);
+        }
+    </script>
+
+}

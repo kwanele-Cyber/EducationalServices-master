@@ -1,0 +1,26 @@
+﻿@{
+    ViewBag.Title = "Order a Book";
+}
+
+<h2>Order a Book</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form action="@Url.Action("OrderBook", "Library")" method="post">
+    <div class="form-group">
+        <label for="bookTitle">Book Title</label>
+        <input type="text" name="bookTitle" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="author">Author</label>
+        <input type="text" name="author" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="price">Price</label>
+        <input type="number" name="price" class="form-control" step="0.01" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Order</button>
+</form>

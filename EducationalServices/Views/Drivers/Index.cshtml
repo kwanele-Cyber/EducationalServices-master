@@ -1,0 +1,128 @@
+﻿@model IEnumerable<EducationalServices.Models.Driver>
+@using EducationalServices.Models
+@{
+    ViewBag.Title = "Index";
+    ApplicationDbContext db = new ApplicationDbContext();
+}
+
+<h2>Drivers</h2>
+
+
+
+
+
+
+
+
+
+<section class="my-5">
+    @foreach (var item in Model)
+    {
+        <div class="container">
+            <div class="main-body">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex flex-column align-items-center text-center">
+                                    <img src="https://bootdey.com/img/Content/avatar/avatar6.png" alt="Admin"
+                                         class="rounded-circle p-1 bg-warning" width="110">
+                                    <div class="mt-3">
+                                        <h4>@item.Name @item.Surname</h4>
+                                        <p class="text-secondary mb-1">Vehicle: @item.CarType @item.CarModel @item.CarName </p>
+                                        <p class="text-secondary mb-1">Vehicle Capacity: @item.Capacity </p>
+
+                                        <p class="text-muted font-size-sm">Phone: @item.PhoneNumber</p>
+                                        @*@if (item.IsAvailable)
+                                            {
+                                                <span class="badge badge-success" style="color:blue">Available</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-success" style="color:blue">Not Availabe</span>
+
+                                            }*@
+
+                                    </div>
+                                </div>
+                                <div class="list-group list-group-flush text-center mt-4">
+                                    <a href="@Url.Action("Myprofile", "Drivers", new { email = item.Email })" class="list-group-item list-group-item-action border-0 active">
+                                        Profile Informaton
+                                    </a>
+                                    <button type="button" class="list-group-item list-group-item-action border-0 btn btn-primary" data-toggle="modal" data-target="#deliveriesModal-@item.DrivId">
+                                        Deliveries
+                                    </button>
+                                    <a href="@Url.Action("Create", "DriverAssignments", new {id=item.DrivId})" class="list-group-item list-group-item-action border-0">Assign</a>
+                                    @*<a href="#" class="list-group-item list-group-item-action border-0">Settings</a>
+                                        <a href="#" class="list-group-item list-group-item-action border-0">Logout</a>*@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="modal fade" id="deliveriesModal-@item.DrivId" tabindex="-1" role="dialog" aria-labelledby="deliveriesModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deliveriesModalLabel">Deliveries for @item.Name @item.Surname</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @{var deliveries = db.DriverAssignments.Where(x => x.AssDrivId == item.DrivId).ToList();
+                        }
+                        @if (deliveries != null && deliveries.Any())
+                        {
+                            <table class="table">
+                                <tr>
+                                    <td>Date:</td>
+                                    <td>Time:</td>
+                                    <td>Address:</td>
+                                    <td>OrderNo:</td>
+                                </tr>
+
+                                @foreach (var delivery in deliveries)
+                                {
+                                    <tr>
+                                        <td>@delivery.DeliveryDate</td>
+                                        <td>@delivery.DeliveryTime</td>
+                                        <td>@delivery.Orders.Address</td>
+                                        <td>@delivery.Orders.OrderId</td>
+                                    </tr>
+
+                                }
+                            </table>
+                        }
+                        else
+                        {
+                            <p>No deliveries assigned.</p>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</section>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>

@@ -1,0 +1,63 @@
+﻿@using Microsoft.AspNet.Identity;
+
+@model List<EducationalServices.Models.ReservationViewModel>
+
+<h2>Reservations</h2>
+
+@if (!Model.Any())
+{
+    if(User.IsInRole("Admin"))
+    {
+        <p>There are no reservations created So Far.</p> 
+    }
+    else { 
+        <p>You don't have any active reservations.</p>
+    }
+}
+else
+{
+
+
+    <table class="table">
+        <tr>
+            <th>QRCode</th>
+            <th>Book Title</th>
+            <th>Author</th>
+            <th>Reservation Date</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+        @foreach (var reservation in Model)
+        {
+            <tr>
+                <td>
+                    @if (reservation.UserId == User.Identity.GetUserId())
+                    {
+                        <img src="@reservation.QRCode" style="max-width: 200px; max-height: 200px;" />
+                    }
+                </td>
+                <td>@reservation.BookTitle</td>
+                <td>@reservation.BookAuthor</td>
+                <td>@reservation.ReservationDate.ToString("yyyy-MM-dd")</td>
+                <td>
+                    @if (reservation.IsBookAvailable && reservation.Status == EducationalServices.Models.ReservationStatus.RESERVED_WAITING)
+                    {
+                        <span class="text-success">Available for pickup</span>
+                    }
+                    else
+                    {
+                        <span class="text-warning">@reservation.Status.ToString()</span>
+                    }
+                </td>
+                <td>
+                    @using (Html.BeginForm("CancelReservation", "Library", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@reservation.ReservationId" />
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this reservation?');">Cancel</button>
+                    }
+                </td>
+            </tr>
+        }
+    </table>
+}

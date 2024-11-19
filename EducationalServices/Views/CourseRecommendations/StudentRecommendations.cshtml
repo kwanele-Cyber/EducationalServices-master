@@ -1,0 +1,42 @@
+﻿@model IEnumerable<EducationalServices.Models.CourseRecommendation>
+
+@{
+    ViewBag.Title = "Your Course Recommendations";
+}
+
+<h2>Your Course Recommendations</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Info"] != null)
+{
+    <div class="alert alert-info">@TempData["Info"]</div>
+}
+
+<table class="table">
+    <tr>
+        <th>Module</th>
+        <th>Subject Code</th>
+        <th>Reason</th>
+        <th>Recommended On</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Module.Subject</td>
+            <td>@item.Module.SubjectCode</td>
+            <td>@item.Reason</td>
+            <td>@item.CreatedAt.ToString("g")</td>
+            <td>
+                @Html.ActionLink("Accept", "Payment", "Modules", new { moduleId = item.ModuleId, isRecommendation = true }, new { @class = "btn btn-success btn-sm" })
+                @Html.ActionLink("Decline", "Decline", new { id = item.Id }, new { @class = "btn btn-danger btn-sm" })
+            </td>
+        </tr>
+    }
+
+</table>

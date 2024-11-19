@@ -1,0 +1,42 @@
+﻿@model EducationalServices.Models.Book
+
+@{
+    ViewBag.Title = "Book Details";
+}
+
+<h2>Book Details</h2>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Author)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Author)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.IsAvailable)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsAvailable)
+        </dd>
+    </dl>
+
+    @if (!string.IsNullOrEmpty(Model.ImagePath))
+    {
+        <img src="~/Content/img/@Model.ImagePath" alt="Book Cover" style="max-width: 300px;" />
+    }
+</div>
+<p>
+    @Html.ActionLink("Edit", "UpdateBook", new { id = Model.BookId }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

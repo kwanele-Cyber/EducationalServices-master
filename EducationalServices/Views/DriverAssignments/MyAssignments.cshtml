@@ -1,0 +1,241 @@
+﻿@model IEnumerable<EducationalServices.Models.DriverAssignment>
+@using EducationalServices.Models
+@{
+    ViewBag.Title = "MyAssignments";
+    ApplicationDbContext db = new ApplicationDbContext();
+}
+
+
+<h2>My Assignments</h2>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+</head>
+
+@foreach (var item in Model)
+{
+    <div class="container">
+        <div class="main-body">
+            <div class="row">
+
+                <div class="col-lg-8">
+
+                    <div class="card mt-4">
+                        <div class="card-body p-0 table-responsive">
+                            <h4 class="p-3 mb-0">Order: @item.OrderId &nbsp; Date: @item.Orders.OrderDate.ToLongDateString() </h4>
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Description</th>
+                                        <th scope="col"></th>
+                                        <th scope="col">Quantity</th>
+                                        <th scope="col">Amount</th>
+                                        <th scope="col">Weight</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{var products = db.OrderDetails.Where(x => x.OrderId == item.OrderId).ToList();
+                                    }
+
+                                    @foreach (var prod in products)
+                                    {
+                                        <tr>
+
+                                            <th>
+                                                <img src="data:image;base64,@prod.Picture"
+                                                     alt="product" class="" width="80">
+                                            </th>
+                                            <td>
+                                                @prod.Name
+                                            </td>
+                                            <td>@prod.StockQuantity</td>
+                                            <td><strong>@prod.Price.ToString("R0.00")</strong></td>
+
+                                            <td><span class="badge badge-warning">@prod.Weight</span></td>
+
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <th colspan="2">
+                                            <span>Delivery Date: @item.DeliveryDate</span>
+                                            <span>Delivery Time: @item.DeliveryTime</span>
+                                            @if (item.Status == "Placed")
+                                            {
+                                                <span class="badge badge-success">PENDING</span>
+                                            }
+
+                                        </th>
+                                        <td>
+                                            <span class="text-muted">Product Cost</span>
+                                            <strong>@item.Orders.ProductCost.ToString("R0.00")</strong>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">Delivery Fee</span>
+                                            <strong>@item.Orders.DeliveryFee.ToString("R0.00")</strong>
+                                        </td>
+                                        <td>
+
+                                            <span class="text-muted">Total</span>
+                                            <strong>@item.Orders.TotalAmount.ToString("R0.00")</strong>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="list-group-item list-group-item-action border-0 btn btn-primary" data-toggle="modal" data-target="#deliveriesModal-@item.DrivId">
+                                                More info
+                                            </button>
+                                            <button type="button" class="list-group-item list-group-item-action border-0 btn btn-primary" data-toggle="modal" data-target="#StartDeliveryModal-@item.DrivId">
+                                                Start Delivery
+                                            </button>
+                                            
+
+
+                                            <button class="btn btn-outline-dark" style="margin-left: 5px;" onclick="location.href='@Url.Action(actionName: "Index", controllerName: "Drivers", routeValues: new { orderId = item.OrderId })'">Start Delivery</button>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deliveriesModal-@item.DrivId" tabindex="-1" role="dialog" aria-labelledby="deliveriesModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deliveriesModalLabel">Assignment Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Order Number: @item.OrderId</p>
+                    <p>Driver: @item.Driver.Name  @item.Driver.Surname</p>
+                    <p>Driver Email: @item.Email</p>
+                    <p>Delivery Date: @item.DeliveryDate</p>
+                    <p>Delivery Time: @item.DeliveryTime</p>
+                    <p>Assigned at: @item.Created</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="StartDeliveryModal-@item.DrivId" tabindex="-1" role="dialog" aria-labelledby="StartDeliveryModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="StartDeliveryModalLabel">Are you sure you want to start delivery for this order?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="@Url.Action("StartOrderDelivery", "DriverAssignments")" method="post">
+                        <input type="hidden" id="id" name="id" value="@item.AssDrivId" required>
+                        <label>Estimated Arrival Time</label>
+                        <input type="text" id="estArrivalTime-@item.DrivId" name="estArrivalTime" value="" required>
+                        <label>Destination</label>
+                        <input type="text" id="Destination-@item.DrivId" name="Destination" value="@item.Orders.Address" required>
+                        <label>Distance</label>
+                        <input type="text" id="Distance-@item.DrivId" name="Distance" value="" required>
+                        <label>Driving Time</label>
+                        <input type="text" id="DrivingTime-@item.DrivId" name="DrivingTime" value="" required>
+                        <button type="submit" class="btn btn-primary">Confirm</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+<script>
+    let userLocation = null;
+
+    // Get current location from Geolocation API
+    function getCurrentLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+            }, () => {
+                alert("Geolocation permission denied or not available.");
+            });
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+
+    // Function to calculate travel details using the Google Maps Directions API
+    function calculateTravelDetails(drivId) {
+        const destinationField = document.querySelector(`#Destination-${drivId}`);
+        const destination = destinationField.value;
+
+        if (!userLocation || !destination) {
+            alert("Invalid starting location or destination.");
+            return;
+        }
+
+        const directionsService = new google.maps.DirectionsService();
+
+        const request = {
+            origin: userLocation,
+            destination: destination,
+            travelMode: 'DRIVING'
+        };
+
+        directionsService.route(request, (result, status) => {
+            if (status === 'OK') {
+                const route = result.routes[0].legs[0];
+                // Set values to modal fields
+                document.querySelector(`#estArrivalTime-${drivId}`).value = route.arrival_time ? route.arrival_time.text : "N/A";
+                document.querySelector(`#Distance-${drivId}`).value = route.distance.text;
+                document.querySelector(`#DrivingTime-${drivId}`).value = route.duration.text;
+            } else {
+                alert("Error calculating route. Please try again.");
+            }
+        });
+    }
+
+    // Initialize the map and user's current location
+    function initMap() {
+        getCurrentLocation();
+    }
+
+    // Event listener to calculate data on modal opening
+    $(document).ready(function () {
+        $('[id^="StartDeliveryModal-"]').on('shown.bs.modal', function (event) {
+            // Extract drivId from the modal id
+            const drivId = $(this).attr('id').split('-')[1];
+            calculateTravelDetails(drivId);
+        });
+    });
+</script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous">
+</script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous">
+</script>
+

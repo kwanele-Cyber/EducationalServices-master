@@ -1,0 +1,65 @@
+﻿@model IEnumerable<EducationalServices.Models.Product>
+
+@{
+    ViewBag.Title = "Products";
+}
+
+<h2>Products</h2>
+@if (User.IsInRole("Admin"))
+{
+    <p>
+        @Html.ActionLink("Add New Product", "Create")
+    </p>
+}
+else
+{
+    if (TempData["Canceled"] != null)
+    {
+        <a class="btn btn-danger btn-block btn-lg">@TempData["Canceled"]</a>
+        TempData["Canceled"] = null;
+    }
+}
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <img class="img-fluid" style="width:100%;height:300px" src="data:image;base64,@item.Picture" alt="Picture">
+                <div class="card-body">
+                    <h5 class="card-title">@item.Name</h5>
+                    <p class="card-text">@item.Description</p>
+                    <p class="card-text">Price: @item.Price.ToString("R0.00")</p>
+                    <p class="card-text">Stock Quantity: @item.StockQuantity</p>
+                    <p class="card-text">Weight: @item.Weight KG</p>
+                    <p class="card-text"><small class="text-muted">Created At: @item.CreatedAt.ToString("yyyy-MM-dd")</small></p>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a href="@Url.Action("Details", new { id = item.ProductId })" class="btn btn-primary">Details</a>
+                        <a href="@Url.Action("Edit", new { id = item.ProductId })" class="btn btn-secondary">Edit</a>
+                        <a href="@Url.Action("Delete", new { id = item.ProductId })" class="btn btn-danger">Delete</a>
+                    }
+                    else
+                    {
+                <form method="post" action="~/Products/AddToCart">
+
+                    @if (@item.StockQuantity <= 0)
+                    {
+                        <button type="button" class="btn btn-dark">Out Of Stock</button>
+                    }
+                    else
+                    {
+                        <label>Qty:</label>
+                        <input name="Qty" class="form-control" type="number" max="@item.StockQuantity"  />
+                        <input name="ProductId" value="@item.ProductId" hidden />
+                        <br />
+
+                        <button type="submit" class="btn btn-success">Add To Cart</button>
+                    }
+                </form>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

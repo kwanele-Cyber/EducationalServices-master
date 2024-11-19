@@ -1,0 +1,176 @@
+﻿@model IEnumerable<EducationalServices.Models.Borrow>
+@{
+    ViewBag.Title = "All Books";
+    var currentDate = DateTime.Now.Date;
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+
+        <h1>All Books</h1>
+
+
+        <div class="btn-group">
+            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                Filter Status
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="@Url.Action("ViewAllBorrowedBooks")">All Books</a></li>
+                <li><a class="dropdown-item" href="@Url.Action("ViewAllBorrowedBooks", new { status = "active" })">Currently Borrowed</a></li>
+                <li><a class="dropdown-item" href="@Url.Action("ViewAllBorrowedBooks", new { status = "overdue" })">Overdue</a></li>
+                <li><a class="dropdown-item" href="@Url.Action("ViewAllBorrowedBooks", new { status = "returned" })">Returned</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Books</h5>
+                    <div class="h3">@ViewBag.TotalBooks</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Currently Borrowed</h5>
+                    <div class="h3">@ViewBag.ActiveCount</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Overdue</h5>
+                    <div class="h3">@ViewBag.OverdueCount</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Returned</h5>
+                    <div class="h3">@ViewBag.ReturnedCount</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Book Details</th>
+                    <th>Borrowed By</th>
+                    <th>Borrow Date</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                @if (!string.IsNullOrEmpty(item.Book.ImagePath))
+                                {
+                                    <img src="~/Content/img/@item.Book.ImagePath"
+                                         alt="@item.Book.Title"
+                                         class="me-3"
+                                         style="max-width: 60px; max-height: 90px;" />
+                                }
+                                else
+                                {
+                                    <i class="fas fa-book fa-2x me-3 text-muted"></i>
+                                }
+                                <div>
+                                    <div class="fw-bold">@item.Book.Title</div>
+                                    <small class="text-muted">@item.Book.Author</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>@item.User.UserName</div>
+                            <small class="text-muted">@item.User.Email</small>
+                        </td>
+                        <td>@item.BorrowDate.ToString("MMM dd, yyyy")</td>
+                        <td>@item.DueDate.ToString("MMM dd, yyyy")</td>
+                        <td>
+                            @if (item.IsReturned || item.ReturnDate.HasValue)
+                            {
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    Returned on @item.ReturnDate.Value.ToString("MMM dd, yyyy")
+                                </span>
+                            }
+                            else if (!item.ReturnDate.HasValue && item.DueDate > currentDate)
+                            {
+                                <span class="badge bg-info">
+                                    <i class="fas fa-clock me-1"></i>
+                                    @((item.DueDate - currentDate).Days) days left
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    @Math.Abs((currentDate - item.DueDate).Days) days overdue
+                                </span>
+                            }
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                @if (item.ReturnDate.HasValue)
+                                {
+                                    <a href="@Url.Action("ViewBookDetails", new { bookId = item.BookId })"
+                                       class="btn btn-info btn-sm">
+                                        <i class="fas fa-info-circle me-1"></i>Details
+                                    </a>
+                                }
+                                else
+                                {
+                                    <form action="@Url.Action("ReturnBook", "Library")" method="get" class="me-1">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="borrowId" value="@item.BorrowId" />
+                                        <button type="submit" class="btn btn-primary btn-sm"
+                                                onclick="return confirm('Are you sure you want to return this book?')">
+                                            <i class="fas fa-undo-alt me-1"></i>Return
+                                        </button>
+                                    </form>
+
+                                    <a href="@Url.Action("ViewBookDetails", new { bookId = item.BookId })"
+                                       class="btn btn-info btn-sm">
+                                        <i class="fas fa-info-circle me-1"></i>Details
+                                    </a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+
+            // Auto-hide alerts after 3 seconds
+            setTimeout(function () {
+                $('.alert').fadeOut('slow');
+            }, 3000);
+        });
+    </script>
+}

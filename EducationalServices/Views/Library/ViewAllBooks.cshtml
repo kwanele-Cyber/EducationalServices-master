@@ -1,0 +1,41 @@
+﻿@model IEnumerable<EducationalServices.Models.Book>
+
+<h2>All Books</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Available</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var book in Model)
+        {
+            <tr>
+                <td>@book.Title</td>
+                <td>@book.Author</td>
+                <td>@(book.IsAvailable ? "Yes" : "No")</td>
+                <td>@book.Status.ToString()</td>
+                <td>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        if (book.Status == EducationalServices.Models.BookStatus.RESERVED)
+                        {
+                            <a href="@Url.Action("BorrowBook", "Library", new { bookId = book.BookId })" class="btn btn-primary">Lend Out</a>
+                        }
+                        else if (book.Status == EducationalServices.Models.BookStatus.UNDER_MAINTENANCE)
+                        {
+                            <a href="@Url.Action("MarkAsAvailable", "Library", new { bookId = book.BookId })" class="btn btn-outline-danger">Mark As Available</a>
+                        }
+
+                        <a href="@Url.Action("UpdateBook", "Library", new { bookId = book.BookId })" class="btn btn-primary">Edit</a>
+                        <a href="@Url.Action("DeleteBook", "Library", new { bookId = book.BookId })" class="btn btn-danger">Delete</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,55 @@
+﻿@model IEnumerable<EducationalServices.Models.QuizAttempt>
+
+<h2>Your Quiz Results</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Quiz Title</th>
+            <th>Module</th>
+            <th>Date Taken</th>
+            <th>Score</th>
+            <th>Percentage</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var attempt in Model)
+        {
+            <tr>
+                <td>@attempt.Quiz.Title</td>
+                <td>@attempt.Quiz.Module.Subject</td>
+                <td>@attempt.StartTime.ToString("g")</td>
+                <td>@attempt.Score / @attempt.Quiz.Questions.Sum(q => q.Marks)</td>
+                <td>@(((double)attempt.Score / attempt.Quiz.Questions.Sum(q => q.Marks) * 100).ToString("F2"))%</td>
+                <td>
+                    @if (attempt.IsCompleted)
+                    {
+                        <span class="badge badge-success">Completed</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-warning">In Progress</span>
+                    }
+                </td>
+                <td>
+                    @Html.ActionLink("View Details", "AttemptDetails", new { id = attempt.AttemptId }, new { @class = "btn btn-info btn-sm" })
+                    @if (attempt.IsCompleted && attempt.QuizRating == null)
+                    {
+                        @Html.ActionLink("Rate Quiz", "RateQuiz", new { id = attempt.AttemptId }, new { @class = "btn btn-primary btn-sm" })
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <p>You haven't attempted any quizzes yet.</p>
+}
+
+<div>
+    @Html.ActionLink("Back to Available Quizzes", "AvailableQuizzes", null, new { @class = "btn btn-secondary" })
+</div>

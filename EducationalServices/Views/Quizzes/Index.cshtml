@@ -1,0 +1,105 @@
+﻿@model IEnumerable<EducationalServices.Models.Quiz>
+@{
+    ViewBag.Title = "Quizzes";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Quizzes</h2>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="@Url.Action("Create")" class="btn btn-info">Create New Quiz</a>
+
+        @using (Html.BeginForm("Index", "Quizzes", FormMethod.Get, new { @class = "d-flex" }))
+        {
+            <div class="input-group">
+                @Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new { @class = "form-control", placeholder = "Search by title" })
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-outline-secondary">Search</button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Title)</th>
+                    <th>@Html.DisplayNameFor(model => model.Module.Subject)</th>
+                    <th>@Html.DisplayNameFor(model => model.StartTime)</th>
+                    <th>@Html.DisplayNameFor(model => model.EndTime)</th>
+                    <th>@Html.DisplayNameFor(model => model.MaxAttempts)</th>
+                    <th>@Html.DisplayNameFor(model => model.TimeLimit)</th>
+                    <th>@Html.DisplayNameFor(model => model.IsCompleted)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Module.Subject)</td>
+                        <td>@item.StartTime.ToString("yyyy/MM/dd HH:mm")</td>
+                        <td>@item.EndTime.ToString("yyyy/MM/dd HH:mm")</td>
+                        <td>@Html.DisplayFor(modelItem => item.MaxAttempts)</td>
+                        <td>@Html.DisplayFor(modelItem => item.TimeLimit)</td>
+                        <td>
+                            <span class="badge @(item.IsCompleted ? "badge-success" : "badge-warning")">
+                                @(item.IsCompleted ? "Completed" : "Pending")
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                
+                                <a href="@Url.Action("Details", new { id = item.QuizId })" class="btn btn-sm btn-outline-info">Details</a>
+                             
+                              
+                               
+                                @if (User.IsInRole("Admin") || User.IsInRole("Tutor"))
+                                {
+                                    <a href="@Url.Action("Grade", new { id = item.QuizId })" class="btn btn-sm btn-outline-warning">Grade</a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+    }
+
+    h2 {
+        color: #333;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+    }
+
+    .badge {
+        font-size: 0.9em;
+    }
+
+    .btn-group .btn {
+        margin-right: 2px;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Add any JavaScript functionality here
+        });
+    </script>
+}

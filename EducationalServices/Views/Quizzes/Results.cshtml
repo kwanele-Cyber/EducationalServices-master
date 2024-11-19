@@ -1,0 +1,253 @@
+﻿@model EducationalServices.Models.QuizResultsViewModel
+
+@{
+    ViewBag.Title = "Quiz Results";
+}
+
+<div class="container mt-4">
+    <h2>Results for @Model.Quiz.Title</h2>
+    <p>Module: @Model.Quiz.Module.Subject</p>
+
+    @if (Model.IsAdminOrTutor)
+    {
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Attempts</h5>
+                        <p class="card-text">@(Model.StudentsWhoCompleted.Count + Model.StudentsStillTaking.Count)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Completed Attempts</h5>
+                        <p class="card-text">@Model.StudentsWhoCompleted.Count</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">In Progress</h5>
+                        <p class="card-text">@Model.StudentsStillTaking.Count</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Not Attempted</h5>
+                        <p class="card-text">@(Model.StudentsNotAttempted?.Count ?? 0)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <h3>Completed Attempts</h3>
+    @if (Model.StudentsWhoCompleted.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Attempt</th>
+                        @if (Model.IsAdminOrTutor)
+                        {
+                            <th>Student</th>
+                        }
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Duration</th>
+                        <th>Marks</th>
+                        <th>Action</th>
+                        <th>Rate Quiz</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var attempt in Model.StudentsWhoCompleted)
+                    {
+                        <tr>
+                            <td>@attempt.AttemptId</td>
+                            @if (Model.IsAdminOrTutor)
+                            {
+                                <td>@attempt.Student.UserName</td>
+                            }
+                            <td>@attempt.StartTime.ToString("yyyy/MM/dd HH:mm")</td>
+                            <td>@(attempt.EndTime.HasValue ? attempt.EndTime.Value.ToString("yyyy/MM/dd HH:mm") : "N/A")</td>
+                            <td>
+                                @if (attempt.EndTime.HasValue)
+                                {
+                                    @((attempt.EndTime.Value - attempt.StartTime).ToString(@"hh\:mm\:ss"))
+                                }
+                                else
+                                {
+                                    @("N/A")
+                                }
+                            </td>
+                            <td>@attempt.Score</td>
+                            <td>
+                                <a href="@Url.Action("AttemptDetails", new { id = attempt.AttemptId })" class="btn btn-sm btn-info">View Details</a>
+                            </td>
+                            <td>
+                                @if (attempt.QuizRating == null)
+                                {
+                                    <button class="btn btn-sm btn-primary rate-quiz" data-attempt-id="@attempt.AttemptId" data-quiz-id="@attempt.QuizId">Rate Quiz</button>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-info">Rated: @attempt.QuizRating.Rating / 5</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <p>No completed attempts yet.</p>
+    }
+
+    @if (Model.IsAdminOrTutor)
+    {
+        <h3>Attempts in Progress</h3>
+        if (Model.StudentsStillTaking.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Attempt</th>
+                            <th>Student</th>
+                            <th>Start Time</th>
+                            <th>Time Elapsed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var attempt in Model.StudentsStillTaking)
+                        {
+                            <tr>
+                                <td>@attempt.AttemptId</td>
+                                <td>@attempt.Student.UserName</td>
+                                <td>@attempt.StartTime.ToString("yyyy/MM/dd HH:mm")</td>
+                                <td>@((DateTime.Now - attempt.StartTime).ToString(@"hh\:mm\:ss"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p>No attempts in progress.</p>
+        }
+
+        <h3>Students Who Haven't Attempted</h3>
+        if (Model.StudentsNotAttempted != null && Model.StudentsNotAttempted.Any())
+        {
+            <ul>
+                @foreach (var student in Model.StudentsNotAttempted)
+                {
+                    <li>@student.UserName</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>All students have attempted this quiz.</p>
+        }
+    }
+
+    <div class="mt-3">
+        <a href="@Url.Action("Index")" class="btn btn-secondary">Back to Quizzes</a>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+    }
+
+    h2, h3 {
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .card {
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        font-weight: bold;
+    }
+
+    .card-text {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #17a2b8;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+
+        .btn-info:hover {
+            background-color: #138496;
+            border-color: #117a8b;
+        }
+
+    .badge {
+        font-size: 0.9em;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.rate-quiz').click(function () {
+                var attemptId = $(this).data('attempt-id');
+                var quizId = $(this).data('quiz-id');
+                $('#attemptId').val(attemptId);
+                $('#quizId').val(quizId);
+                $('#ratingModal').modal('show');
+            });
+
+            $('#submitRating').click(function () {
+                var formData = $('#ratingForm').serialize();
+                $.ajax({
+                    url: '@Url.Action("RateQuiz", "Quizzes")',
+                    type: 'POST',
+                    data: formData,
+                    success: function (result) {
+                        if (result.success) {
+                            $('#ratingModal').modal('hide');
+                            location.reload();
+                        } else {
+                            alert('Error: ' + result.message);
+                        }
+                    },
+                    error: function () {
+                        alert('An error occurred while submitting the rating.');
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,148 @@
+﻿@using EducationalServices.Models
+@model EducationalServices.Models.Quiz
+@{
+    ViewBag.Title = "Take Quiz";
+}
+
+<div class="container mt-4">
+    <h2>@Model.Title</h2>
+    <p>@Model.Description</p>
+
+    @if (Model.TimeLimit > 0)
+    {
+        <div id="timer" class="alert alert-info">
+            Time remaining: <span id="time-remaining"></span>
+        </div>
+    }
+
+    @using (Html.BeginForm("SubmitAttempt", "Quizzes", new { id = ViewBag.AttemptId }, FormMethod.Post, new { id = "quizForm" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.QuizId)
+
+        <div class="quiz-questions">
+            @for (int i = 0; i < Model.Questions.Count; i++)
+            {
+                var question = Model.Questions.ElementAt(i);  // Use ElementAt to access the question by index
+                <div class="question card mb-3">
+                    <div class="card-body">
+                        <h4 class="card-title">Question @(i + 1): @question.Text</h4>
+                        <p class="card-text">Marks: @question.Marks</p>
+
+                        @switch (question.QuestionType)
+                        {
+                            case QuestionType.MultipleChoice:
+                                foreach (var option in question.Options.Split(','))
+                                {
+                                    <div class="form-check">
+                                        <input type="radio" name="Answers[@i].Answer" value="@option.Trim()" class="form-check-input" id="@(question.QuestionId)_@option.Trim()">
+                                        <label class="form-check-label" for="@(question.QuestionId)_@option.Trim()">@option.Trim()</label>
+                                    </div>
+                                }
+                                break;
+
+                            case QuestionType.TrueFalse:
+                                <div class="form-check">
+                                    <input type="radio" name="Answers[@i].Answer" value="True" class="form-check-input" id="@(question.QuestionId)_True">
+                                    <label class="form-check-label" for="@(question.QuestionId)_True">True</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" name="Answers[@i].Answer" value="False" class="form-check-input" id="@(question.QuestionId)_False">
+                                    <label class="form-check-label" for="@(question.QuestionId)_False">False</label>
+                                </div>
+                                break;
+
+                            case QuestionType.FillInTheBlank:
+                            case QuestionType.ShortAnswer:
+                                <input type="text" name="Answers[@i].Answer" class="form-control" />
+                                break;
+
+                            case QuestionType.Essay:
+                                <textarea name="Answers[@i].Answer" class="form-control" rows="5"></textarea>
+                                break;
+
+                            case QuestionType.MultipleAnswers:
+                                foreach (var option in question.Options.Split(','))
+                                {
+                                    <div class="form-check">
+                                        <input type="checkbox" name="Answers[@i].Answer" value="@option.Trim()" class="form-check-input" id="@(question.QuestionId)_@option.Trim()">
+                                        <label class="form-check-label" for="@(question.QuestionId)_@option.Trim()">@option.Trim()</label>
+                                    </div>
+                                }
+                                break;
+
+                            case QuestionType.Matching:
+                                var matchingOptions = question.Options.Split(';');
+                                for (int j = 0; j < matchingOptions.Length; j++)
+                                {
+                                    <div class="form-group">
+                                        <label>@matchingOptions[j].Split(':')[0]</label>
+                                        <select name="Answers[@i].Answer" class="form-control">
+                                            <option value="">Select...</option>
+                                            @foreach (var option in matchingOptions)
+                                            {
+                                                <option value="@option">@option.Split(':')[1]</option>
+                                            }
+                                        </select>
+                                    </div>
+                                }
+                                break;
+
+                            case QuestionType.Ranking:
+                                var rankingOptions = question.Options.Split(',');
+                                for (int j = 0; j < rankingOptions.Length; j++)
+                                {
+                                    <div class="form-group">
+                                        <label>Rank @(j + 1)</label>
+                                        <select name="Answers[@i].Answer" class="form-control">
+                                            <option value="">Select...</option>
+                                            @foreach (var option in rankingOptions)
+                                            {
+                                                <option value="@option.Trim()">@option.Trim()</option>
+                                            }
+                                        </select>
+                                    </div>
+                                }
+                                break;
+                        }
+                        @Html.Hidden($"Answers[{i}].QuestionId", question.QuestionId)
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="Submit Quiz" class="btn btn-primary" />
+        </div>
+    }
+</div>
+
+<style>
+    #timer {
+        position: fixed;
+        top: 70px;
+        right: 20px;
+        z-index: 1000;
+    }
+</style>
+
+@section Scripts {
+    @if (Model.TimeLimit > 0)
+    {
+        <script>
+            $(document).ready(function () {
+                var timeLimit = @Model.TimeLimit * 60; // Convert minutes to seconds
+                var timer = setInterval(function () {
+                    timeLimit--;
+                    var minutes = Math.floor(timeLimit / 60);
+                    var seconds = timeLimit % 60;
+                    $('#time-remaining').text(minutes + "m " + seconds + "s");
+                    if (timeLimit <= 0) {
+                        clearInterval(timer);
+                        $('#quizForm').submit();
+                    }
+                }, 1000);
+            });
+        </script>
+    }
+}

@@ -1,0 +1,49 @@
+﻿@model IEnumerable<EducationalServices.Models.Feedback>
+
+@{
+    ViewBag.Title = "Admin Feedback View";
+}
+
+<h2>Admin Feedback View</h2>
+
+<table class="table">
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.Type)</th>
+        <th>@Html.DisplayNameFor(model => model.UserName)</th>
+        <th>@Html.DisplayNameFor(model => model.Message)</th>
+        <th>@Html.DisplayNameFor(model => model.DateSubmitted)</th>
+        <th>@Html.DisplayNameFor(model => model.IsResolved)</th>
+        <th>Actions</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@Html.DisplayFor(modelItem => item.Type)</td>
+            <td>@Html.DisplayFor(modelItem => item.UserName)</td>
+            <td>@Html.DisplayFor(modelItem => item.Message)</td>
+            <td>@Html.DisplayFor(modelItem => item.DateSubmitted)</td>
+            <td>@Html.DisplayFor(modelItem => item.IsResolved)</td>
+            <td>
+                @if (!item.IsResolved)
+                {
+                    using (Html.BeginForm("Resolve", "Feedback", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("id", item.Id)
+                        <div class="input-group">
+                            <input type="text" name="adminResponse" class="form-control" placeholder="Admin response" required>
+                            <span class="input-group-btn">
+                                <button class="btn btn-primary" type="submit">Resolve</button>
+                            </span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p><strong>Admin Response:</strong> @item.AdminResponse</p>
+                }
+            </td>
+        </tr>
+    }
+</table>

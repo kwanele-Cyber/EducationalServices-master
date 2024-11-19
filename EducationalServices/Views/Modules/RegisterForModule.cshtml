@@ -1,0 +1,62 @@
+﻿@model IEnumerable<EducationalServices.Models.Module>
+@using Microsoft.AspNet.Identity
+@{
+    ViewBag.Title = "Register For Module";
+}
+
+@if (TempData["Cancel"] != null)
+{
+    <button class="btn-lg btn-danger">@TempData["Cancel"]</button>
+    TempData["Cancel"] = null;
+}
+
+<div class="row">
+    @foreach (var module in Model)
+    {
+        @functions
+        {
+            EducationalServices.Models.ApplicationDbContext db = new EducationalServices.Models.ApplicationDbContext();
+            private bool ModuleAlreadyRegistered(int moduleId)
+            {
+                var userId = User.Identity.GetUserId();
+                var studentModules = db.StudentModules.Where(x => x.StudentId == userId && x.ModuleId == moduleId).ToList();
+                return studentModules.Any();
+            }
+        }
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <h4 class="card-title">@module.Subject</h4>
+                            <p class="card-text"><strong>Subject Code:</strong> @module.SubjectCode</p>
+                            <p class="card-text"><strong>Description:</strong> @module.Description</p>
+                            <p class="card-text"><strong>Duration:</strong> @module.DurationInHours hours</p>
+                            <p class="card-text"><strong>Difficulty:</strong> @module.Difficulty</p>
+                            <p class="card-text"><strong>Price:</strong> R @module.Price</p>
+
+                            @using (Html.BeginForm("Payment", "Modules", FormMethod.Get))
+                            {
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="moduleId" value="@module.ModuleId" />
+                                if (ModuleAlreadyRegistered(module.ModuleId))
+                                {
+                                    <button type="button" class="btn btn-dark">You Are Registered</button>
+                                }
+                                else
+                                {
+                        <button type="button" class="btn btn-outline-dark" onclick="location.href='@Url.Action(actionName: "CreatePayment", controllerName: "PayPal", routeValues: new { CartTotal = module.Price, modID= module.ModuleId })'"> Register</button>
+                                 
+                                }
+
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
