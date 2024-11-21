@@ -20,6 +20,9 @@
     <p>
         @Html.ActionLink("Create New Room", "Create", null, new { @class = "btn btn-success" })
     </p>
+    <p>
+        @Html.ActionLink("Check In User", "VerifyCheckIn", null, new { @class = "btn btn-outline-success" })
+    </p>
 }
 
 <table class="table table-bordered">
@@ -38,25 +41,43 @@
                 <td>@room.RoomName</td>
                 <td>@room.Capacity</td>
                 <td>
-                    @if (room.IsAvailable)
-                    {
-                        <span class="text-success">Available</span>
-                    }
-                    else
-                    {
-                        <span class="text-danger">Occupied</span>
+                    @* Determine room status *@
+                    @{
+                        var currentBooking = room.RoomBookings?.FirstOrDefault(b => b.StartTime <= DateTime.Now && b.EndTime >= DateTime.Now);
+
+                        if (currentBooking != null)
+                        {
+                            if (currentBooking.CheckInTime.HasValue && currentBooking.EndTime > DateTime.Now)
+                            {
+                                <span class="text-danger">Checked In</span>
+                            }
+                            else
+                            {
+                                <span class="text-warning">Reserved</span>
+                            }
+                        }
+                        else if (room.IsAvailable)
+                        {
+                            <span class="text-success">Available</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Not Available</span>
+                        }
                     }
                 </td>
                 <td>
-                    @if (room.IsAvailable)
+                    @* Actions based on user role *@
+                    @if (room.IsAvailable && !User.IsInRole("Admin"))
                     {
                         @Html.ActionLink("Book Room", "Book", new { id = room.RoomId }, new { @class = "btn btn-primary" })
                     }
-                    else
+                    else if (!room.IsAvailable)
                     {
-                        <button class="btn btn-secondary" disabled>Unavailable</button>
+                        <button class="btn btn-secondary" disabled>Current Slot Not-Available</button>
                     }
-                    @Html.ActionLink("View Schedule", "Schedule", new { id = room.RoomId }, new { @class = "btn btn-info" })
+
+                    @Html.ActionLink("View Schedule/Make Reservation", "Schedule", new { id = room.RoomId }, new { @class = "btn btn-info" })
 
                     @if (User.IsInRole("Admin"))
                     {
@@ -73,4 +94,7 @@
     </tbody>
 </table>
 
-@Html.ActionLink("My Bookings", "MyBookings", null, new { @class = "btn btn-success" })
+@if (!User.IsInRole("Admin"))
+{
+    @Html.ActionLink("My Bookings", "MyBookings", null, new { @class = "btn btn-success" })
+}

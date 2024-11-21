@@ -12,6 +12,8 @@ namespace EducationalServices.Models
         public int Capacity { get; set; }
 
         public bool IsAvailable { get; set; }
+
+        public List<RoomBooking> RoomBookings {  get; set; }
     }
 
 }

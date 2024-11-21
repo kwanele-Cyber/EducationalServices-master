@@ -1,29 +1,71 @@
-﻿@model IEnumerable<EducationalServices.Models.RoomBooking>
+﻿@using Microsoft.AspNet.Identity;
+@using EducationalServices.Models;
+@model IEnumerable<MyBookingsViewModel>
 
 <h2>My Room Bookings</h2>
 
-<table class="table">
-    <tr>
-        <th>Room</th>
-        <th>Start Time</th>
-        <th>End Time</th>
-        <th>Action</th>
-    </tr>
-    @foreach (var booking in Model)
-    {
+<table class="table table-bordered">
+    <thead>
         <tr>
-            <td>@booking.Room.RoomName</td>
-            <td>@booking.StartTime</td>
-            <td>@booking.EndTime</td>
-            <td>
-                @using (Html.BeginForm("ExtendBooking", "Room", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="id" value="@booking.RoomBookingId" />
-                    <input type="number" name="extensionMinutes" placeholder="Minutes" min="15" step="15" />
-                    <button type="submit" class="btn btn-warning">Extend</button>
-                }
-            </td>
+            <th>QRCode</th>
+            <th>Room</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Check-In Time</th>
+            <th>Time Remaining</th>
+            <th>Action</th>
         </tr>
-    }
+    </thead>
+    <tbody>
+        @foreach (var booking in Model)
+        {
+            <tr>
+                <td>
+                    @if (!string.IsNullOrEmpty(booking.Base64Img))
+                    {
+                        <img src="@booking.Base64Img" style="max-width: 200px; max-height: 200px;" alt="QR Code" />
+                    }
+                </td>
+                <td>@booking.RoomName</td>
+                <td>@booking.StartTime.ToString("g")</td>
+                <td>@booking.EndTime.ToString("g")</td>
+                <td>
+                    @if (booking.CheckInTime.HasValue)
+                    {
+                        @booking.CheckInTime.Value.ToString("g")
+                    }
+                    else
+                    {
+                        <span class="text-muted">Not Checked In</span>
+                    }
+                </td>
+                <td>
+                    @if (booking.EndTime > DateTime.Now)
+                    {
+                        <span>@booking.RemainingTime</span>
+                    }
+                    else
+                    {
+                        <span class="text-danger">Expired</span>
+                    }
+                </td>
+                <td>
+                    @if (booking.EndTime > DateTime.Now)
+                    {
+                        using (Html.BeginForm("ExtendBooking", "Room", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@booking.RoomBookingId" />
+                            <input type="number" name="extensionMinutes" placeholder="Minutes" min="15" step="15" class="form-control" style="width: 100px; display: inline-block;" />
+                            <button type="submit" class="btn btn-warning">Extend</button>
+                        }
+                    }
+                    else
+                    {
+                        <button class="btn btn-secondary" disabled>Extension Unavailable</button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
 </table>

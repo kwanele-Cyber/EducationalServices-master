@@ -28,6 +28,7 @@ public class LibraryController : Controller
         var books = db.Books
             .Include(b => b.Borrows)
             .Include(b => b.Reservations)
+
             .ToList();
 
 
@@ -153,7 +154,7 @@ public class LibraryController : Controller
 
 
         //generate qrCode
-        var code = _verificationRepoCode.Generate(userId: userId);
+        var code = _verificationRepoCode.Generate(userId: userId, VerificationCodeType.BOOK_RESERVATION);
 
         reservation.VerificationCodeId = code.Id;
         reservation.VerificationCode = code;

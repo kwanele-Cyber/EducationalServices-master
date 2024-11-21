@@ -1,0 +1,49 @@
+@{
+    ViewBag.Title = "Verify Check-In";
+}
+
+<h2>Verify Check-In</h2>
+
+<!-- QR Code Scanner -->
+<div class="row">
+    <h4>Scan QR Code</h4>
+</div>
+<div class="col-sm-12 col-md-6">
+    @using (Html.BeginForm("ProcessCheckInQRCode", "Room", FormMethod.Post, new { id = "qrCodeForm" }))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" id="scannedContent" name="scannedContent" />
+        <div class="container">
+            <h3>Scan QR Codes</h3>
+            <h6 class="text-info" id="result"></h6>
+            <div class="section">
+                <div id="qr-code-scanner"></div>
+            </div>
+        </div>
+    }
+</div>
+
+<script src="~/Scripts/html5-qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+    function onScanSuccess(content) {
+        // Parse QR Code content
+        document.getElementById('result').innerText = "QR Code Scanned! Processing...";
+        document.getElementById('scannedContent').value = content;
+
+        // Submit the form programmatically
+        document.getElementById('qrCodeForm').submit();
+    }
+
+    const html5QrCodeScanner = new Html5QrcodeScanner("qr-code-scanner", {
+        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+        fps: 10,
+        qrbox: 250
+    });
+
+    html5QrCodeScanner.render(onScanSuccess, onScanFailure);
+
+    function onScanFailure(error) {
+        console.error("QR code scanning failed:", error);
+    }
+</script>

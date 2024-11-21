@@ -13,7 +13,7 @@ namespace EducationalServices.Models
         public int ReservationId { get; set; }
         public int BookId { get; set; }
         public string UserId { get; set; }
-        public Guid? VerificationCodeId { get; set; }
+        public string VerificationCodeId { get; set; }
         public DateTime ReservationDate { get; set; }
         public DateTime? ReservationEndDate { get; set; }
         public int ReservationOrder { get; set; }

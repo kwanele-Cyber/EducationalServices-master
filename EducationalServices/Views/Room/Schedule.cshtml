@@ -54,8 +54,10 @@
         }
     </div>
     <div class="col-md-6">
+   @if (!User.IsInRole("Admin"))
+    {
         <h3>Book This Room</h3>
-        @using (Html.BeginForm("Book", "Room", FormMethod.Post))
+        using (Html.BeginForm("Book", "Room", FormMethod.Post))
         {
             @Html.AntiForgeryToken()
             @Html.Hidden("RoomId", room.RoomId)
@@ -73,6 +75,7 @@
             </div>
             <button type="submit" class="btn btn-primary">Book Room</button>
         }
+    }
     </div>
 </div>
 

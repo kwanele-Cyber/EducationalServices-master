@@ -15,15 +15,15 @@ namespace EducationalServices
 {
     public interface IVerificationCodeRepository<T>:IDisposable where T : VerificationCode
     {
-        VerificationCode Generate(string userId);
+        VerificationCode Generate(string userId,VerificationCodeType? Type = null, string Message = null);
         Task<List<T>> GetAllAsync(string userId);
         Task<List<VerificationCode>> GetAllAsync(Expression<Func<T, bool>> query);
-        Task<VerificationCode> GetByIdAsync(Guid id);
+        Task<VerificationCode> GetByIdAsync(string id);
         Task<VerificationCode> GetSingleAsync(Expression<Func<T, bool>> query);
 
         Task RemoveAsync(Expression<Func<T, bool>> query);
 
-        Task RemoveAsync(Guid id);
+        Task RemoveAsync(string id);
 
         Task<bool> VerifyAsync(string userId, string code);
 
@@ -40,9 +40,24 @@ namespace EducationalServices
             _context = context;
         }
 
-        public VerificationCode Generate(string userId)
+        public VerificationCode Generate(string userId, VerificationCodeType? Type = null, string Message = null)
         {
             var code = new VerificationCode();
+
+            if(Message != null)
+            {
+                code.Code = Message;
+            }
+            else
+            {
+                var rand = new Random();
+                code.Code = rand.Next(10000, 99999).ToString();
+            }
+
+            if (Type != null)
+            {
+                code.VerificationType = (VerificationCodeType)Type;
+            }
 
 
             using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
@@ -70,7 +85,7 @@ namespace EducationalServices
             return await _context.verificationCodes.Where(query).ToListAsync();
         }
 
-        public async Task RemoveAsync(Guid id)
+        public async Task RemoveAsync(string id)
         {
             var item = await GetByIdAsync(id);
 
@@ -88,7 +103,7 @@ namespace EducationalServices
 
         }
 
-        public async Task<VerificationCode> GetByIdAsync(Guid id)
+        public async Task<VerificationCode> GetByIdAsync(string id)
         {
             var item = await _context.verificationCodes.FirstOrDefaultAsync(t => t.Id == id);
 

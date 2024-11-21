@@ -12,17 +12,19 @@ namespace EducationalServices.Models
     public class VerificationCode
     {
         [Key]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         public string Code { get; set; }
         public string UserId { get; set; }
         public string Base64Img { get; set; }
+        public VerificationCodeType VerificationType { get; set; }
         public VerificationCodeStatus Status { get; set; }
 
         public VerificationCode()
         {
-            Id = Guid.NewGuid();
+            Id = Guid.NewGuid().ToString();
             Code = new Random().Next(10000, 99999).ToString();
             Status = VerificationCodeStatus.NOT_VERIFIED;
+            VerificationType = VerificationCodeType.NONE;
         }
 
         [ForeignKey(nameof(UserId))]
@@ -32,5 +34,12 @@ namespace EducationalServices.Models
     public enum VerificationCodeStatus{
         NOT_VERIFIED,
         VERIFIED,
+    }
+
+    public enum VerificationCodeType
+    {
+        NONE,
+        BOOK_RESERVATION,
+        ROOM_BOOKING,
     }
 }

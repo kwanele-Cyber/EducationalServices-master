@@ -2,6 +2,18 @@
 
 <h2>Book Room: @Model.RoomName</h2>
 
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+
+
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()

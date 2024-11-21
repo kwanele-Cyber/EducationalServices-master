@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.Web.LibraryManager.Build.2.1.175\build\Microsoft.Web.LibraryManager.Build.props" Condition="Exists('..\packages\Microsoft.Web.LibraryManager.Build.2.1.175\build\Microsoft.Web.LibraryManager.Build.props')" />
   <Import Project="..\packages\Microsoft.ML.OnnxRuntime.1.18.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.props" Condition="Exists('..\packages\Microsoft.ML.OnnxRuntime.1.18.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.props')" />
   <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -152,6 +153,7 @@
     <Reference Include="Microsoft.Web.Infrastructure, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Web.Infrastructure.2.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Win32.Primitives" />
     <Reference Include="Newtonsoft.Json.Bson, Version=1.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.Bson.1.0.2\lib\net45\Newtonsoft.Json.Bson.dll</HintPath>
     </Reference>
@@ -179,6 +181,7 @@
       <HintPath>..\packages\SixLabors.ImageSharp.Drawing.1.0.0\lib\net472\SixLabors.ImageSharp.Drawing.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.AppContext" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
     </Reference>
@@ -186,17 +189,25 @@
     <Reference Include="System.Configuration.ConfigurationManager, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Configuration.ConfigurationManager.6.0.0\lib\net461\System.Configuration.ConfigurationManager.dll</HintPath>
     </Reference>
+    <Reference Include="System.Console" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.OracleClient" />
+    <Reference Include="System.Diagnostics.Tracing" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Globalization.Calendars" />
     <Reference Include="System.IO, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.IO.4.3.0\lib\net462\System.IO.dll</HintPath>
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.ZipFile" />
+    <Reference Include="System.IO.FileSystem" />
+    <Reference Include="System.IO.FileSystem.Primitives" />
     <Reference Include="System.IO.Pipelines, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.IO.Pipelines.8.0.0\lib\net462\System.IO.Pipelines.dll</HintPath>
     </Reference>
+    <Reference Include="System.Linq" />
     <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
     </Reference>
@@ -213,6 +224,7 @@
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
+    <Reference Include="System.Reflection" />
     <Reference Include="System.Runtime, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.4.3.0\lib\net462\System.Runtime.dll</HintPath>
       <Private>True</Private>
@@ -221,6 +233,9 @@
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Extensions" />
+    <Reference Include="System.Runtime.InteropServices" />
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation" />
     <Reference Include="System.Security" />
     <Reference Include="System.Security.AccessControl, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Security.AccessControl.6.0.0\lib\net461\System.Security.AccessControl.dll</HintPath>
@@ -396,65 +411,9 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\ChatHub.cs" />
-    <Compile Include="Migrations\202410211952574_InitialCreate.cs" />
-    <Compile Include="Migrations\202410211952574_InitialCreate.Designer.cs">
-      <DependentUpon>202410211952574_InitialCreate.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202410212011520_scheduleviews.cs" />
-    <Compile Include="Migrations\202410212011520_scheduleviews.Designer.cs">
-      <DependentUpon>202410212011520_scheduleviews.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202410212058418_feedbackadd.cs" />
-    <Compile Include="Migrations\202410212058418_feedbackadd.Designer.cs">
-      <DependentUpon>202410212058418_feedbackadd.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202411010439083_AddBorrowExtension.cs" />
-    <Compile Include="Migrations\202411010439083_AddBorrowExtension.Designer.cs">
-      <DependentUpon>202411010439083_AddBorrowExtension.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202411010455273_AddDueDateAndIsReturnedToBorrow.cs" />
-    <Compile Include="Migrations\202411010455273_AddDueDateAndIsReturnedToBorrow.Designer.cs">
-      <DependentUpon>202411010455273_AddDueDateAndIsReturnedToBorrow.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202411010509468_updatedborrowmodel.cs" />
-    <Compile Include="Migrations\202411010509468_updatedborrowmodel.Designer.cs">
-      <DependentUpon>202411010509468_updatedborrowmodel.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202411010548379_AddBookStatus.cs" />
-    <Compile Include="Migrations\202411010548379_AddBookStatus.Designer.cs">
-      <DependentUpon>202411010548379_AddBookStatus.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202411141456500_Modify_Reservation.cs" />
-    <Compile Include="Migrations\202411141456500_Modify_Reservation.Designer.cs">
-      <DependentUpon>202411141456500_Modify_Reservation.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202411141555064_Added_BookStatusEnum.cs" />
-    <Compile Include="Migrations\202411141555064_Added_BookStatusEnum.Designer.cs">
-      <DependentUpon>202411141555064_Added_BookStatusEnum.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202411141819585_AddVerificationCode.cs" />
-    <Compile Include="Migrations\202411141819585_AddVerificationCode.Designer.cs">
-      <DependentUpon>202411141819585_AddVerificationCode.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202411141906080_AddVerificationCodeQRCode.cs" />
-    <Compile Include="Migrations\202411141906080_AddVerificationCodeQRCode.Designer.cs">
-      <DependentUpon>202411141906080_AddVerificationCodeQRCode.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202411141922393_AddVerificationCodeQRCode1.cs" />
-    <Compile Include="Migrations\202411141922393_AddVerificationCodeQRCode1.Designer.cs">
-      <DependentUpon>202411141922393_AddVerificationCodeQRCode1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202411151107151_Added-BookInspection.cs" />
-    <Compile Include="Migrations\202411151107151_Added-BookInspection.Designer.cs">
-      <DependentUpon>202411151107151_Added-BookInspection.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202411151139193_Added-status-On-Reservation.cs" />
-    <Compile Include="Migrations\202411151139193_Added-status-On-Reservation.Designer.cs">
-      <DependentUpon>202411151139193_Added-status-On-Reservation.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202411191628471_Added_notes_into_inspection_and_removed_amount.cs" />
-    <Compile Include="Migrations\202411191628471_Added_notes_into_inspection_and_removed_amount.Designer.cs">
-      <DependentUpon>202411191628471_Added_notes_into_inspection_and_removed_amount.cs</DependentUpon>
+    <Compile Include="Migrations\202411201538146_init.cs" />
+    <Compile Include="Migrations\202411201538146_init.Designer.cs">
+      <DependentUpon>202411201538146_init.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -473,6 +432,7 @@
     <Compile Include="Models\BorrowViewModel.cs" />
     <Compile Include="Models\Card.cs" />
     <Compile Include="Models\Cart.cs" />
+    <Compile Include="Models\CheckInScanResult.cs" />
     <Compile Include="Models\CourseRecommendation.cs" />
     <Compile Include="Models\CustInfo.cs" />
     <Compile Include="Models\DigitalResource.cs" />
@@ -484,6 +444,7 @@
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Meths.cs" />
     <Compile Include="Models\Module.cs" />
+    <Compile Include="Models\MyBookingsViewModel.cs" />
     <Compile Include="Models\OrderDetails.cs" />
     <Compile Include="Models\Orders.cs" />
     <Compile Include="Models\Product.cs" />
@@ -510,7 +471,7 @@
     <Compile Include="Models\StudyRoomBooking.cs" />
     <Compile Include="Models\SupportRequest.cs" />
     <Compile Include="Models\User.cs" />
-    <Compile Include="Models\VerificationCodes.cs" />
+    <Compile Include="Models\VerificationCode.cs" />
     <Compile Include="PayPalConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -676,6 +637,7 @@
     <Content Include="Content\bootstrap-grid.rtl.css.map" />
     <Content Include="Content\bootstrap-grid.min.css.map" />
     <Content Include="Content\bootstrap-grid.css.map" />
+    <Content Include="libman.json" />
     <None Include="Properties\PublishProfiles\EducationalServices2024 - Web Deploy.pubxml" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
@@ -689,6 +651,7 @@
     <Content Include="Scripts\bootstrap.esm.js.map" />
     <Content Include="Scripts\bootstrap.bundle.min.js.map" />
     <Content Include="Scripts\bootstrap.bundle.js.map" />
+    <None Include="Properties\PublishProfiles\EducationalServices20241119234921 - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <None Include="Scripts\jquery-3.7.1.intellisense.js" />
     <Content Include="Scripts\html5-qrcode.min.js" />
@@ -835,6 +798,8 @@
     <Content Include="Views\Library\BookReports.cshtml" />
     <Content Include="Views\Library\ReserveBook.cshtml" />
     <Content Include="Views\Library\ReturnBook.cshtml" />
+    <Content Include="Views\Room\CheckIn.cshtml" />
+    <Content Include="Views\Room\VerifyCheckIn.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -847,50 +812,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202410211952574_InitialCreate.resx">
-      <DependentUpon>202410211952574_InitialCreate.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202410212011520_scheduleviews.resx">
-      <DependentUpon>202410212011520_scheduleviews.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202410212058418_feedbackadd.resx">
-      <DependentUpon>202410212058418_feedbackadd.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202411010439083_AddBorrowExtension.resx">
-      <DependentUpon>202411010439083_AddBorrowExtension.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202411010455273_AddDueDateAndIsReturnedToBorrow.resx">
-      <DependentUpon>202411010455273_AddDueDateAndIsReturnedToBorrow.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202411010509468_updatedborrowmodel.resx">
-      <DependentUpon>202411010509468_updatedborrowmodel.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202411010548379_AddBookStatus.resx">
-      <DependentUpon>202411010548379_AddBookStatus.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202411141456500_Modify_Reservation.resx">
-      <DependentUpon>202411141456500_Modify_Reservation.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202411141555064_Added_BookStatusEnum.resx">
-      <DependentUpon>202411141555064_Added_BookStatusEnum.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202411141819585_AddVerificationCode.resx">
-      <DependentUpon>202411141819585_AddVerificationCode.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202411141906080_AddVerificationCodeQRCode.resx">
-      <DependentUpon>202411141906080_AddVerificationCodeQRCode.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202411141922393_AddVerificationCodeQRCode1.resx">
-      <DependentUpon>202411141922393_AddVerificationCodeQRCode1.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202411151107151_Added-BookInspection.resx">
-      <DependentUpon>202411151107151_Added-BookInspection.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202411151139193_Added-status-On-Reservation.resx">
-      <DependentUpon>202411151139193_Added-status-On-Reservation.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202411191628471_Added_notes_into_inspection_and_removed_amount.resx">
-      <DependentUpon>202411191628471_Added_notes_into_inspection_and_removed_amount.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\202411201538146_init.resx">
+      <DependentUpon>202411201538146_init.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
@@ -938,12 +861,15 @@
     <Error Condition="!Exists('..\packages\Microsoft.ML.OnnxRuntime.Managed.1.18.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.Managed.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ML.OnnxRuntime.Managed.1.18.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.Managed.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.ML.OnnxRuntime.1.18.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ML.OnnxRuntime.1.18.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.ML.OnnxRuntime.1.18.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ML.OnnxRuntime.1.18.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Web.LibraryManager.Build.2.1.175\build\Microsoft.Web.LibraryManager.Build.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Web.LibraryManager.Build.2.1.175\build\Microsoft.Web.LibraryManager.Build.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Web.LibraryManager.Build.2.1.175\build\Microsoft.Web.LibraryManager.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Web.LibraryManager.Build.2.1.175\build\Microsoft.Web.LibraryManager.Build.targets'))" />
   </Target>
   <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\build\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\build\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets')" />
   <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
   <Import Project="..\packages\Microsoft.Extensions.Logging.Abstractions.6.0.0\build\Microsoft.Extensions.Logging.Abstractions.targets" Condition="Exists('..\packages\Microsoft.Extensions.Logging.Abstractions.6.0.0\build\Microsoft.Extensions.Logging.Abstractions.targets')" />
   <Import Project="..\packages\Microsoft.ML.OnnxRuntime.Managed.1.18.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.Managed.targets" Condition="Exists('..\packages\Microsoft.ML.OnnxRuntime.Managed.1.18.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.Managed.targets')" />
   <Import Project="..\packages\Microsoft.ML.OnnxRuntime.1.18.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.targets" Condition="Exists('..\packages\Microsoft.ML.OnnxRuntime.1.18.1\build\netstandard2.0\Microsoft.ML.OnnxRuntime.targets')" />
+  <Import Project="..\packages\Microsoft.Web.LibraryManager.Build.2.1.175\build\Microsoft.Web.LibraryManager.Build.targets" Condition="Exists('..\packages\Microsoft.Web.LibraryManager.Build.2.1.175\build\Microsoft.Web.LibraryManager.Build.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

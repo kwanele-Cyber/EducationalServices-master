@@ -3,22 +3,28 @@
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class InitialCreate : DbMigration
+    public partial class init : DbMigration
     {
         public override void Up()
         {
             CreateTable(
-                "dbo.BookOrders",
+                "dbo.BookInspections",
                 c => new
                     {
-                        BookOrderId = c.Int(nullable: false, identity: true),
-                        Title = c.String(nullable: false, maxLength: 200),
-                        Author = c.String(nullable: false, maxLength: 100),
-                        Price = c.Decimal(nullable: false, precision: 18, scale: 2),
-                        OrderDate = c.DateTime(nullable: false),
-                        IsFulfilled = c.Boolean(nullable: false),
+                        Id = c.Int(nullable: false, identity: true),
+                        BookId = c.Int(nullable: false),
+                        UserId = c.String(maxLength: 128),
+                        BorrowId = c.Int(nullable: false),
+                        Status = c.Int(nullable: false),
+                        Notes = c.String(),
                     })
-                .PrimaryKey(t => t.BookOrderId);
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Books", t => t.BookId, cascadeDelete: true)
+                .ForeignKey("dbo.Borrows", t => t.BorrowId, cascadeDelete: true)
+                .ForeignKey("dbo.AspNetUsers", t => t.UserId)
+                .Index(t => t.BookId)
+                .Index(t => t.UserId)
+                .Index(t => t.BorrowId);
             
             CreateTable(
                 "dbo.Books",
@@ -29,6 +35,7 @@
                         Author = c.String(nullable: false),
                         IsAvailable = c.Boolean(nullable: false),
                         ImagePath = c.String(),
+                        Status = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.BookId);
             
@@ -38,14 +45,32 @@
                     {
                         BorrowId = c.Int(nullable: false, identity: true),
                         BookId = c.Int(nullable: false),
-                        UserId = c.String(maxLength: 128),
+                        UserId = c.String(nullable: false, maxLength: 128),
                         BorrowDate = c.DateTime(nullable: false),
                         ReturnDate = c.DateTime(),
+                        IsReturned = c.Boolean(nullable: false),
+                        DueDate = c.DateTime(nullable: false),
                     })
                 .PrimaryKey(t => t.BorrowId)
-                .ForeignKey("dbo.Books", t => t.BookId, cascadeDelete: true)
+                .ForeignKey("dbo.Books", t => t.BookId)
                 .ForeignKey("dbo.AspNetUsers", t => t.UserId)
                 .Index(t => t.BookId)
+                .Index(t => t.UserId);
+            
+            CreateTable(
+                "dbo.BorrowExtensions",
+                c => new
+                    {
+                        BorrowExtensionId = c.Int(nullable: false, identity: true),
+                        BorrowId = c.Int(nullable: false),
+                        ExtensionDate = c.DateTime(nullable: false),
+                        DaysExtended = c.Int(nullable: false),
+                        UserId = c.String(nullable: false, maxLength: 128),
+                    })
+                .PrimaryKey(t => t.BorrowExtensionId)
+                .ForeignKey("dbo.Borrows", t => t.BorrowId, cascadeDelete: true)
+                .ForeignKey("dbo.AspNetUsers", t => t.UserId, cascadeDelete: true)
+                .Index(t => t.BorrowId)
                 .Index(t => t.UserId);
             
             CreateTable(
@@ -81,6 +106,30 @@
                     })
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.AspNetUsers", t => t.UserId, cascadeDelete: true)
+                .Index(t => t.UserId);
+            
+            CreateTable(
+                "dbo.BookIssueReports",
+                c => new
+                    {
+                        ReportId = c.Int(nullable: false, identity: true),
+                        BorrowId = c.Int(nullable: false),
+                        BookId = c.Int(nullable: false),
+                        UserId = c.String(nullable: false, maxLength: 128),
+                        IssueType = c.String(nullable: false, maxLength: 50),
+                        Description = c.String(nullable: false, maxLength: 1000),
+                        ReportDate = c.DateTime(nullable: false),
+                        Status = c.String(nullable: false, maxLength: 50),
+                        AssessedFee = c.Decimal(precision: 10, scale: 2),
+                        AdminComments = c.String(maxLength: 1000),
+                        ResolutionDate = c.DateTime(),
+                    })
+                .PrimaryKey(t => t.ReportId)
+                .ForeignKey("dbo.Books", t => t.BookId)
+                .ForeignKey("dbo.Borrows", t => t.BorrowId)
+                .ForeignKey("dbo.AspNetUsers", t => t.UserId)
+                .Index(t => t.BorrowId)
+                .Index(t => t.BookId)
                 .Index(t => t.UserId);
             
             CreateTable(
@@ -234,14 +283,47 @@
                         ReservationId = c.Int(nullable: false, identity: true),
                         BookId = c.Int(nullable: false),
                         UserId = c.String(maxLength: 128),
+                        VerificationCodeId = c.String(maxLength: 128),
                         ReservationDate = c.DateTime(nullable: false),
+                        ReservationEndDate = c.DateTime(),
                         ReservationOrder = c.Int(nullable: false),
+                        Status = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.ReservationId)
                 .ForeignKey("dbo.Books", t => t.BookId, cascadeDelete: true)
                 .ForeignKey("dbo.AspNetUsers", t => t.UserId)
+                .ForeignKey("dbo.VerificationCodes", t => t.VerificationCodeId)
                 .Index(t => t.BookId)
+                .Index(t => t.UserId)
+                .Index(t => t.VerificationCodeId);
+            
+            CreateTable(
+                "dbo.VerificationCodes",
+                c => new
+                    {
+                        Id = c.String(nullable: false, maxLength: 128),
+                        Code = c.String(),
+                        UserId = c.String(maxLength: 128),
+                        Base64Img = c.String(),
+                        VerificationType = c.Int(nullable: false),
+                        Status = c.Int(nullable: false),
+                    })
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.AspNetUsers", t => t.UserId)
                 .Index(t => t.UserId);
+            
+            CreateTable(
+                "dbo.BookOrders",
+                c => new
+                    {
+                        BookOrderId = c.Int(nullable: false, identity: true),
+                        Title = c.String(nullable: false, maxLength: 200),
+                        Author = c.String(nullable: false, maxLength: 100),
+                        Price = c.Decimal(nullable: false, precision: 18, scale: 2),
+                        OrderDate = c.DateTime(nullable: false),
+                        IsFulfilled = c.Boolean(nullable: false),
+                    })
+                .PrimaryKey(t => t.BookOrderId);
             
             CreateTable(
                 "dbo.Cards",
@@ -390,6 +472,21 @@
                 .PrimaryKey(t => t.OrderId);
             
             CreateTable(
+                "dbo.Feedbacks",
+                c => new
+                    {
+                        Id = c.Int(nullable: false, identity: true),
+                        UserId = c.String(nullable: false),
+                        UserName = c.String(nullable: false),
+                        Type = c.Int(nullable: false),
+                        Message = c.String(nullable: false, maxLength: 500),
+                        DateSubmitted = c.DateTime(nullable: false),
+                        IsResolved = c.Boolean(nullable: false),
+                        AdminResponse = c.String(),
+                    })
+                .PrimaryKey(t => t.Id);
+            
+            CreateTable(
                 "dbo.OrderDetails",
                 c => new
                     {
@@ -438,15 +535,19 @@
                     {
                         RoomBookingId = c.Int(nullable: false, identity: true),
                         RoomId = c.Int(nullable: false),
+                        VerificationId = c.String(maxLength: 128),
                         UserId = c.String(maxLength: 128),
                         StartTime = c.DateTime(nullable: false),
                         EndTime = c.DateTime(nullable: false),
+                        CheckInTime = c.DateTime(),
                         IsActive = c.Boolean(nullable: false),
                     })
                 .PrimaryKey(t => t.RoomBookingId)
                 .ForeignKey("dbo.Rooms", t => t.RoomId, cascadeDelete: true)
                 .ForeignKey("dbo.AspNetUsers", t => t.UserId)
+                .ForeignKey("dbo.VerificationCodes", t => t.VerificationId)
                 .Index(t => t.RoomId)
+                .Index(t => t.VerificationId)
                 .Index(t => t.UserId);
             
             CreateTable(
@@ -512,6 +613,7 @@
             DropForeignKey("dbo.StudyRoomBookings", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.StudentModules", "StudentId", "dbo.AspNetUsers");
             DropForeignKey("dbo.StudentModules", "ModuleId", "dbo.Modules");
+            DropForeignKey("dbo.RoomBookings", "VerificationId", "dbo.VerificationCodes");
             DropForeignKey("dbo.RoomBookings", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.RoomBookings", "RoomId", "dbo.Rooms");
             DropForeignKey("dbo.AspNetUserRoles", "RoleId", "dbo.AspNetRoles");
@@ -521,9 +623,15 @@
             DropForeignKey("dbo.DriverAssignments", "DrivId", "dbo.Drivers");
             DropForeignKey("dbo.CourseRecommendations", "StudentId", "dbo.AspNetUsers");
             DropForeignKey("dbo.CourseRecommendations", "ModuleId", "dbo.Modules");
+            DropForeignKey("dbo.BookInspections", "UserId", "dbo.AspNetUsers");
+            DropForeignKey("dbo.BookInspections", "BorrowId", "dbo.Borrows");
+            DropForeignKey("dbo.BookInspections", "BookId", "dbo.Books");
+            DropForeignKey("dbo.Reservations", "VerificationCodeId", "dbo.VerificationCodes");
+            DropForeignKey("dbo.VerificationCodes", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.Reservations", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.Reservations", "BookId", "dbo.Books");
             DropForeignKey("dbo.Borrows", "UserId", "dbo.AspNetUsers");
+            DropForeignKey("dbo.BorrowExtensions", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.AspNetUserRoles", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.QuizRatings", "StudentId", "dbo.AspNetUsers");
             DropForeignKey("dbo.QuizRatings", "QuizId", "dbo.Quizs");
@@ -538,13 +646,18 @@
             DropForeignKey("dbo.StudentAnswers", "QuestionId", "dbo.Questions");
             DropForeignKey("dbo.Questions", "QuizId", "dbo.Quizs");
             DropForeignKey("dbo.AspNetUserLogins", "UserId", "dbo.AspNetUsers");
+            DropForeignKey("dbo.BookIssueReports", "UserId", "dbo.AspNetUsers");
+            DropForeignKey("dbo.BookIssueReports", "BorrowId", "dbo.Borrows");
+            DropForeignKey("dbo.BookIssueReports", "BookId", "dbo.Books");
             DropForeignKey("dbo.AspNetUserClaims", "UserId", "dbo.AspNetUsers");
+            DropForeignKey("dbo.BorrowExtensions", "BorrowId", "dbo.Borrows");
             DropForeignKey("dbo.Borrows", "BookId", "dbo.Books");
             DropIndex("dbo.SupportRequests", new[] { "StudentId" });
             DropIndex("dbo.StudyRoomBookings", new[] { "UserId" });
             DropIndex("dbo.StudentModules", new[] { "StudentId" });
             DropIndex("dbo.StudentModules", new[] { "ModuleId" });
             DropIndex("dbo.RoomBookings", new[] { "UserId" });
+            DropIndex("dbo.RoomBookings", new[] { "VerificationId" });
             DropIndex("dbo.RoomBookings", new[] { "RoomId" });
             DropIndex("dbo.AspNetRoles", "RoleNameIndex");
             DropIndex("dbo.OrderDetails", new[] { "OrderId" });
@@ -553,6 +666,8 @@
             DropIndex("dbo.DispatchRecords", new[] { "AssDrivId" });
             DropIndex("dbo.CourseRecommendations", new[] { "ModuleId" });
             DropIndex("dbo.CourseRecommendations", new[] { "StudentId" });
+            DropIndex("dbo.VerificationCodes", new[] { "UserId" });
+            DropIndex("dbo.Reservations", new[] { "VerificationCodeId" });
             DropIndex("dbo.Reservations", new[] { "UserId" });
             DropIndex("dbo.Reservations", new[] { "BookId" });
             DropIndex("dbo.AspNetUserRoles", new[] { "RoleId" });
@@ -570,10 +685,18 @@
             DropIndex("dbo.QuizRatings", new[] { "StudentId" });
             DropIndex("dbo.QuizRatings", new[] { "QuizId" });
             DropIndex("dbo.AspNetUserLogins", new[] { "UserId" });
+            DropIndex("dbo.BookIssueReports", new[] { "UserId" });
+            DropIndex("dbo.BookIssueReports", new[] { "BookId" });
+            DropIndex("dbo.BookIssueReports", new[] { "BorrowId" });
             DropIndex("dbo.AspNetUserClaims", new[] { "UserId" });
             DropIndex("dbo.AspNetUsers", "UserNameIndex");
+            DropIndex("dbo.BorrowExtensions", new[] { "UserId" });
+            DropIndex("dbo.BorrowExtensions", new[] { "BorrowId" });
             DropIndex("dbo.Borrows", new[] { "UserId" });
             DropIndex("dbo.Borrows", new[] { "BookId" });
+            DropIndex("dbo.BookInspections", new[] { "BorrowId" });
+            DropIndex("dbo.BookInspections", new[] { "UserId" });
+            DropIndex("dbo.BookInspections", new[] { "BookId" });
             DropTable("dbo.SupportRequests");
             DropTable("dbo.StudyRoomBookings");
             DropTable("dbo.StudentModules");
@@ -582,6 +705,7 @@
             DropTable("dbo.AspNetRoles");
             DropTable("dbo.Products");
             DropTable("dbo.OrderDetails");
+            DropTable("dbo.Feedbacks");
             DropTable("dbo.Orders");
             DropTable("dbo.Drivers");
             DropTable("dbo.DriverAssignments");
@@ -590,6 +714,8 @@
             DropTable("dbo.CustInfoes");
             DropTable("dbo.CourseRecommendations");
             DropTable("dbo.Cards");
+            DropTable("dbo.BookOrders");
+            DropTable("dbo.VerificationCodes");
             DropTable("dbo.Reservations");
             DropTable("dbo.AspNetUserRoles");
             DropTable("dbo.TutorModules");
@@ -600,11 +726,13 @@
             DropTable("dbo.Quizs");
             DropTable("dbo.QuizRatings");
             DropTable("dbo.AspNetUserLogins");
+            DropTable("dbo.BookIssueReports");
             DropTable("dbo.AspNetUserClaims");
             DropTable("dbo.AspNetUsers");
+            DropTable("dbo.BorrowExtensions");
             DropTable("dbo.Borrows");
             DropTable("dbo.Books");
-            DropTable("dbo.BookOrders");
+            DropTable("dbo.BookInspections");
         }
     }
 }
